@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { Calendar, Clock, DollarSign, User, ShieldCheck, Mail, CheckCircle, XCircle, Trash2 } from "lucide-react";
+import { Calendar, Clock, DollarSign, User, ShieldCheck, Mail, CheckCircle, XCircle, Trash2, Search, Filter } from "lucide-react";
 import Link from "next/link";
 
 interface Booking {
@@ -23,6 +23,13 @@ export default function AdminDashboard() {
   const [activeMessage, setActiveMessage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredBookings = bookings.filter(b =>
+    b.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    b.clientEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    b._id.includes(searchQuery)
+  );
 
   const fetchBookings = async () => {
     setIsLoading(true);
@@ -64,7 +71,7 @@ export default function AdminDashboard() {
       });
       if (res.ok) {
         setBookings(prev => prev.map(b => b._id === id ? { ...b, status: status as Booking["status"] } : b));
-        
+
         // Logic: If confirming, generate a confirmation message for the client side
         if (status === "confirmed") {
           const booking = bookings.find(b => b._id === id);
@@ -101,7 +108,7 @@ export default function AdminDashboard() {
       const res = await fetch(`/api/bookings/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           status: "confirmed",
           systemMessage: message
         })
@@ -109,7 +116,7 @@ export default function AdminDashboard() {
 
       if (res.ok) {
         setBookings(prev => prev.map(b => b._id === id ? { ...b, status: "confirmed", systemMessage: message } : b));
-        
+
         // Success feedback delay
         setTimeout(() => {
           setActiveMessage(message);
@@ -146,7 +153,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-black text-white p-6 md:p-12">
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
+      <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-6">
         <div className="flex items-center gap-6">
           <Link href="/" className="relative h-16 w-16 overflow-hidden rounded-xl border border-white/10 hover:border-green-400/50 transition-colors">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -158,12 +165,35 @@ export default function AdminDashboard() {
             </h1>
           </div>
         </div>
-        <div className="flex bg-zinc-900 border border-zinc-800 rounded-2xl p-2">
-          <div className="px-6 py-3 bg-zinc-800 rounded-xl">
-            <div className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-1">Total Bookings</div>
-            <div className="text-2xl font-black text-white">{bookings.length}</div>
+        <div className="relative group hover:scale-105 transition-transform duration-500">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-green-400 to-emerald-600 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
+          <div className="relative flex items-center gap-5 px-6 py-4 bg-zinc-900 border border-zinc-800/80 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="w-12 h-12 rounded-xl bg-green-400/10 flex items-center justify-center flex-shrink-0">
+              <Calendar className="w-6 h-6 text-green-400" />
+            </div>
+            <div>
+              <div className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-1">Total Bookings</div>
+              <div className="text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-zinc-400">
+                {bookings.length}
+              </div>
+            </div>
+            <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-green-400/10 blur-xl rounded-full" />
           </div>
         </div>
+      </div>
+
+      <div className="mb-6 flex gap-3 w-full max-w-4xl">
+        <input
+          type="text"
+          placeholder="Search by name or email..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="flex-1 px-5 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-white outline-none focus:border-zinc-600 placeholder:text-zinc-600 font-medium text-sm transition-all"
+        />
+        <button className="flex items-center gap-2 px-6 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:bg-zinc-800 transition-colors">
+          <Filter className="w-4 h-4 text-green-400" />
+          <span className="text-white text-sm font-bold">Filter</span>
+        </button>
       </div>
 
       {/* Main Content */}
@@ -178,7 +208,7 @@ export default function AdminDashboard() {
         ) : error ? (
           <div className="p-24 text-center space-y-6">
             <div className="text-red-400/50 font-black uppercase tracking-widest text-xs">Sync Failed: {error}</div>
-            <button 
+            <button
               onClick={() => { setRetryCount(0); fetchBookings(); }}
               className="px-8 py-3 bg-zinc-800 text-white rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-zinc-700 transition-all"
             >
@@ -187,6 +217,8 @@ export default function AdminDashboard() {
           </div>
         ) : bookings.length === 0 ? (
           <div className="p-24 text-center text-zinc-500 font-bold uppercase tracking-widest">No bookings found. Time to hit the courts yourself.</div>
+        ) : filteredBookings.length === 0 ? (
+          <div className="p-24 text-center text-zinc-500 font-bold uppercase tracking-widest">No results for "{searchQuery}"</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -200,7 +232,7 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800/50">
-                {bookings.map((booking) => (
+                {filteredBookings.map((booking) => (
                   <tr key={booking._id} className="hover:bg-zinc-800/20 transition-colors">
                     {/* Client */}
                     <td className="p-6">
@@ -251,7 +283,7 @@ export default function AdminDashboard() {
                     <td className="p-6">
                       <div className="flex items-center justify-end gap-2">
                         {booking.status !== "confirmed" && (
-                          <button 
+                          <button
                             onClick={() => handleConfirm(booking._id)}
                             className="p-2 rounded-xl bg-green-400/10 text-green-400 hover:bg-green-400 hover:text-black transition-colors tooltip-trigger"
                             title="Confirm & Message"
@@ -260,7 +292,7 @@ export default function AdminDashboard() {
                           </button>
                         )}
                         {booking.status !== "cancelled" && (
-                          <button 
+                          <button
                             onClick={() => updateStatus(booking._id, "cancelled")}
                             className="p-2 rounded-xl bg-yellow-400/10 text-yellow-400 hover:bg-yellow-400 hover:text-black transition-colors tooltip-trigger"
                             title="Cancel"
@@ -268,7 +300,7 @@ export default function AdminDashboard() {
                             <XCircle className="w-5 h-5" />
                           </button>
                         )}
-                        <button 
+                        <button
                           onClick={() => deleteBooking(booking._id)}
                           className="p-2 rounded-xl bg-red-400/10 text-red-400 hover:bg-red-400 hover:text-black transition-colors tooltip-trigger"
                           title="Delete"
@@ -291,7 +323,7 @@ export default function AdminDashboard() {
           <div className="bg-zinc-900 border border-green-400/30 rounded-3xl p-8 max-w-lg w-full shadow-2xl relative overflow-hidden group">
             {/* Background Glow */}
             <div className="absolute -top-24 -right-24 w-48 h-48 bg-green-400/10 blur-3xl rounded-full" />
-            
+
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-green-400/10 flex items-center justify-center">
@@ -317,12 +349,12 @@ export default function AdminDashboard() {
                       "{activeMessage}"
                     </p>
                     <div className="absolute top-2 right-2 flex gap-2">
-                       <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                      <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-4">
-                    <button 
+                    <button
                       onClick={() => {
                         navigator.clipboard.writeText(activeMessage || "");
                         alert("Message copied to clipboard!");
@@ -331,7 +363,7 @@ export default function AdminDashboard() {
                     >
                       Copy Message
                     </button>
-                    <button 
+                    <button
                       onClick={() => setActiveMessage(null)}
                       className="px-8 py-4 bg-zinc-800 text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-zinc-700 transition-all active:scale-95"
                     >
