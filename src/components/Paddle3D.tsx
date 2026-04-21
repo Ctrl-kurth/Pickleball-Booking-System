@@ -16,14 +16,30 @@ const carbonDataURL = "data:image/svg+xml;utf8," + encodeURIComponent(`
 
 function PremiumPaddle() {
   const group = useRef<THREE.Group>(null);
-
+  
   // Load textures
   const logoTexture = useTexture('/pb4_clean.png');
-  const carbonTexture = useTexture(carbonDataURL);
+  const carbonTexture = useTexture(carbonDataURL, (texture) => {
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(4, 4);
+  });
 
-  // Setup carbon texture
-  carbonTexture.wrapS = carbonTexture.wrapT = THREE.RepeatWrapping;
-  carbonTexture.repeat.set(4, 4);
+  // Drive rotation based on scroll performance with smoothing
+  const targetRotation = useRef(0);
+  useFrame(() => {
+    if (group.current) {
+      const scrollY = typeof window !== 'undefined' ? window.scrollY : 0;
+      // Target rotation (slower: smaller multiplier)
+      targetRotation.current = scrollY * 0.0015;
+      
+      // lerp current rotation to target for that "buttery smooth" high-end feel
+      group.current.rotation.y = THREE.MathUtils.lerp(
+        group.current.rotation.y,
+        targetRotation.current,
+        0.05
+      );
+    }
+  });
 
   // Perfect flat paddle shape with rounded corners
   const paddleShape = useMemo(() => {
@@ -201,13 +217,11 @@ export default function Paddle3DScene() {
             </group>
           </Center>
 
-          <OrbitControls
-            enableZoom={false}
+          <OrbitControls 
+            enableZoom={false} 
             enablePan={false}
-            autoRotate
-            autoRotateSpeed={1.5}
-            maxPolarAngle={Math.PI / 1.5}
-            minPolarAngle={Math.PI / 4}
+            maxPolarAngle={Math.PI / 1.5} 
+            minPolarAngle={Math.PI / 4} 
           />
 
           {/* Ground reflection shadow */}

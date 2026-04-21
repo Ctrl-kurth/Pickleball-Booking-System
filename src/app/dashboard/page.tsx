@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { format } from "date-fns";
-import { Calendar, Clock, DollarSign, User, ShieldCheck, Mail, CheckCircle, XCircle, Trash2, Search, Filter } from "lucide-react";
+import { Calendar, Clock, DollarSign, User, Mail, CheckCircle, XCircle, Trash2, Filter } from "lucide-react";
 import Link from "next/link";
 
 interface Booking {
@@ -31,7 +31,7 @@ export default function AdminDashboard() {
     b._id.includes(searchQuery)
   );
 
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -44,23 +44,27 @@ export default function AdminDashboard() {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.details || "Database connection issue");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
       console.error("Failed to fetch bookings", err);
-      setError(err.message);
-      // Auto-retry once after 3 seconds if it's the first failure
+      setError(message);
+      // Logic: Trigger a retry by incrementing count
       if (retryCount < 1) {
         setRetryCount(prev => prev + 1);
-        setTimeout(fetchBookings, 3000);
       }
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [retryCount]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchBookings();
-  }, []);
+    if (retryCount === 0) {
+      fetchBookings();
+    } else {
+      const timer = setTimeout(fetchBookings, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [fetchBookings, retryCount]);
 
   const updateStatus = async (id: string, status: string) => {
     try {
@@ -182,15 +186,17 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="mb-6 flex gap-3 w-full max-w-4xl">
-        <input
-          type="text"
-          placeholder="Search by name or email..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1 px-5 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-white outline-none focus:border-zinc-600 placeholder:text-zinc-600 font-medium text-sm transition-all"
-        />
-        <button className="flex items-center gap-2 px-6 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:bg-zinc-800 transition-colors">
+      <div className="mb-6 flex flex-col sm:flex-row gap-3 w-full max-w-4xl">
+        <div className="relative flex-1">
+          <input
+            type="text"
+            placeholder="Search by name or email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-5 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-white outline-none focus:border-zinc-600 placeholder:text-zinc-600 font-medium text-sm transition-all"
+          />
+        </div>
+        <button className="flex items-center justify-center gap-2 px-6 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:bg-zinc-800 transition-colors">
           <Filter className="w-4 h-4 text-green-400" />
           <span className="text-white text-sm font-bold">Filter</span>
         </button>
@@ -218,103 +224,169 @@ export default function AdminDashboard() {
         ) : bookings.length === 0 ? (
           <div className="p-24 text-center text-zinc-500 font-bold uppercase tracking-widest">No bookings found. Time to hit the courts yourself.</div>
         ) : filteredBookings.length === 0 ? (
-          <div className="p-24 text-center text-zinc-500 font-bold uppercase tracking-widest">No results for "{searchQuery}"</div>
+          <div className="p-24 text-center text-zinc-500 font-bold uppercase tracking-widest">No results for &quot;{searchQuery}&quot;</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-zinc-900 border-b border-zinc-800 text-xs font-black text-zinc-500 uppercase tracking-widest">
-                  <th className="p-6">Client Info</th>
-                  <th className="p-6">Schedule</th>
-                  <th className="p-6">Revenue</th>
-                  <th className="p-6">Status</th>
-                  <th className="p-6 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-800/50">
-                {filteredBookings.map((booking) => (
-                  <tr key={booking._id} className="hover:bg-zinc-800/20 transition-colors">
-                    {/* Client */}
-                    <td className="p-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400">
-                          <User className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="font-bold text-white">{booking.clientName || "Unknown Client"}</div>
-                          <div className="text-xs text-zinc-500 flex items-center gap-1 mt-1">
-                            <Mail className="w-3 h-3" />
-                            {booking.clientEmail || "No Email Provided"}
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-zinc-900 border-b border-zinc-800 text-xs font-black text-zinc-500 uppercase tracking-widest">
+                    <th className="p-6">Client Info</th>
+                    <th className="p-6">Schedule</th>
+                    <th className="p-6">Revenue</th>
+                    <th className="p-6">Status</th>
+                    <th className="p-6 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-800/50">
+                  {filteredBookings.map((booking) => (
+                    <tr key={booking._id} className="hover:bg-zinc-800/20 transition-colors">
+                      {/* Client */}
+                      <td className="p-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400">
+                            <User className="w-5 h-5" />
+                          </div>
+                          <div className="max-w-[200px] truncate">
+                            <div className="font-bold text-white truncate">{booking.clientName || "Unknown Client"}</div>
+                            <div className="text-xs text-zinc-500 flex items-center gap-1 mt-1 truncate">
+                              <Mail className="w-3 h-3 flex-shrink-0" />
+                              <span className="truncate">{booking.clientEmail || "No Email Provided"}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Schedule */}
-                    <td className="p-6">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2 text-sm font-bold text-zinc-300">
-                          <Calendar className="w-4 h-4 text-green-400" />
-                          {format(new Date(booking.startTime), "MMM d, yyyy")}
+                      {/* Schedule */}
+                      <td className="p-6">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2 text-sm font-bold text-zinc-300 whitespace-nowrap">
+                            <Calendar className="w-4 h-4 text-green-400" />
+                            {format(new Date(booking.startTime), "MMM d, yyyy")}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs font-bold text-zinc-500 whitespace-nowrap">
+                            <Clock className="w-3 h-3" />
+                            {format(new Date(booking.startTime), "h:mm a")} - {format(new Date(booking.endTime), "h:mm a")}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-xs font-bold text-zinc-500">
-                          <Clock className="w-3 h-3" />
-                          {format(new Date(booking.startTime), "h:mm a")} - {format(new Date(booking.endTime), "h:mm a")}
+                      </td>
+
+                      {/* Revenue */}
+                      <td className="p-6">
+                        <div className="flex items-center gap-1 font-black text-lg italic text-white">
+                          <DollarSign className="w-5 h-5 text-green-400" />
+                          {booking.totalPrice}
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Revenue */}
-                    <td className="p-6">
-                      <div className="flex items-center gap-1 font-black text-lg italic text-white">
-                        <DollarSign className="w-5 h-5 text-green-400" />
-                        {booking.totalPrice}
-                      </div>
-                    </td>
+                      {/* Status */}
+                      <td className="p-6">
+                        <div className={`inline-flex items-center px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest ${getStatusColor(booking.status)}`}>
+                          {booking.status}
+                        </div>
+                      </td>
 
-                    {/* Status */}
-                    <td className="p-6">
-                      <div className={`inline-flex items-center px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest ${getStatusColor(booking.status)}`}>
-                        {booking.status}
-                      </div>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="p-6">
-                      <div className="flex items-center justify-end gap-2">
-                        {booking.status !== "confirmed" && (
+                      {/* Actions */}
+                      <td className="p-6">
+                        <div className="flex items-center justify-end gap-2">
+                          {booking.status !== "confirmed" && (
+                            <button
+                              onClick={() => handleConfirm(booking._id)}
+                              className="p-2 rounded-xl bg-green-400/10 text-green-400 hover:bg-green-400 hover:text-black transition-colors tooltip-trigger"
+                              title="Confirm & Message"
+                            >
+                              <CheckCircle className="w-5 h-5" />
+                            </button>
+                          )}
+                          {booking.status !== "cancelled" && (
+                            <button
+                              onClick={() => updateStatus(booking._id, "cancelled")}
+                              className="p-2 rounded-xl bg-yellow-400/10 text-yellow-400 hover:bg-yellow-400 hover:text-black transition-colors tooltip-trigger"
+                              title="Cancel"
+                            >
+                              <XCircle className="w-5 h-5" />
+                            </button>
+                          )}
                           <button
-                            onClick={() => handleConfirm(booking._id)}
-                            className="p-2 rounded-xl bg-green-400/10 text-green-400 hover:bg-green-400 hover:text-black transition-colors tooltip-trigger"
-                            title="Confirm & Message"
+                            onClick={() => deleteBooking(booking._id)}
+                            className="p-2 rounded-xl bg-red-400/10 text-red-400 hover:bg-red-400 hover:text-black transition-colors tooltip-trigger"
+                            title="Delete"
                           >
-                            <CheckCircle className="w-5 h-5" />
+                            <Trash2 className="w-5 h-5" />
                           </button>
-                        )}
-                        {booking.status !== "cancelled" && (
-                          <button
-                            onClick={() => updateStatus(booking._id, "cancelled")}
-                            className="p-2 rounded-xl bg-yellow-400/10 text-yellow-400 hover:bg-yellow-400 hover:text-black transition-colors tooltip-trigger"
-                            title="Cancel"
-                          >
-                            <XCircle className="w-5 h-5" />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => deleteBooking(booking._id)}
-                          className="p-2 rounded-xl bg-red-400/10 text-red-400 hover:bg-red-400 hover:text-black transition-colors tooltip-trigger"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="lg:hidden divide-y divide-zinc-800">
+              {filteredBookings.map((booking) => (
+                <div key={booking._id} className="p-6 space-y-6">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400">
+                        <User className="w-5 h-5" />
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                      <div>
+                        <div className="font-bold text-white">{booking.clientName || "Unknown Client"}</div>
+                        <div className="text-xs text-zinc-500">{booking.clientEmail}</div>
+                      </div>
+                    </div>
+                    <div className={`px-2 py-0.5 rounded-full border text-[8px] font-black uppercase tracking-widest ${getStatusColor(booking.status)}`}>
+                      {booking.status}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 bg-black/30 p-4 rounded-2xl border border-zinc-800/50">
+                    <div>
+                      <div className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Schedule</div>
+                      <div className="text-xs font-bold text-zinc-200">
+                        {format(new Date(booking.startTime), "MMM d")} • {format(new Date(booking.startTime), "h:mm a")}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Revenue</div>
+                      <div className="text-sm font-black italic text-green-400">${booking.totalPrice}</div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    {booking.status !== "confirmed" && (
+                      <button
+                        onClick={() => handleConfirm(booking._id)}
+                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-green-400 text-black font-black uppercase tracking-widest text-[10px]"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        Confirm
+                      </button>
+                    )}
+                    {booking.status !== "cancelled" && (
+                      <button
+                        onClick={() => updateStatus(booking._id, "cancelled")}
+                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-zinc-800 text-yellow-400 border border-yellow-400/20 font-black uppercase tracking-widest text-[10px]"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        Cancel
+                      </button>
+                    )}
+                    <button
+                      onClick={() => deleteBooking(booking._id)}
+                      className="p-3 rounded-xl bg-red-400/10 text-red-400 border border-red-400/20"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )
+}
       </div>
 
       {/* Message Generation Overlay */}
@@ -346,7 +418,7 @@ export default function AdminDashboard() {
                 <>
                   <div className="bg-black/50 border border-zinc-800 rounded-2xl p-6 mb-8 relative">
                     <p className="text-zinc-300 leading-relaxed font-medium italic">
-                      "{activeMessage}"
+                      &quot;{activeMessage}&quot;
                     </p>
                     <div className="absolute top-2 right-2 flex gap-2">
                       <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />

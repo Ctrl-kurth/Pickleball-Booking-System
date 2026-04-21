@@ -53,12 +53,13 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(newBooking, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Booking API Error:", error);
-    if (error && typeof error === "object" && "code" in error && error.code === 11000) {
+    const err = error as { code?: number; message?: string };
+    if (err && typeof err === "object" && err.code === 11000) {
       return NextResponse.json({ error: "Double-booking detected (Race condition prevented)." }, { status: 409 });
     }
-    return NextResponse.json({ error: "Internal Server Error", details: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error", details: err.message || "Unknown error" }, { status: 500 });
   }
 }
 
@@ -70,8 +71,9 @@ export async function GET() {
     await dbConnect();
     const bookings = await Booking.find({}).populate("coachId", "name");
     return NextResponse.json(bookings);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("GET Bookings Error:", error);
-    return NextResponse.json({ error: "Failed to fetch bookings", details: error.message }, { status: 500 });
+    const err = error as { message?: string };
+    return NextResponse.json({ error: "Failed to fetch bookings", details: err.message || "Unknown error" }, { status: 500 });
   }
 }
