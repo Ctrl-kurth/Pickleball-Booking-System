@@ -38,7 +38,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       <Navbar />
-      
+
       <main className="flex items-center justify-center min-h-screen p-6">
         <div className="w-full max-w-md">
           {/* Logo / Header */}
@@ -51,7 +51,7 @@ export default function LoginPage() {
           {/* Login Form */}
           <div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
             <form onSubmit={handleLogin} className="space-y-6">
-              
+
               <div className="space-y-3">
                 <label className="block text-xs font-black text-zinc-500 uppercase tracking-[0.2em]">Email Address</label>
                 <div className="relative group">

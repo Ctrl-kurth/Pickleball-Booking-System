@@ -5,6 +5,9 @@ import { Calendar, Clock, Star, Award, Users, Mail, Phone, Zap, TrendingUp, Chec
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Stepper, { Step } from '@/components/Stepper';
+import dynamic from 'next/dynamic';
+
+const Paddle3D = dynamic(() => import('../components/Paddle3D'), { ssr: false });
 
 export default function App() {
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -132,9 +135,25 @@ export default function App() {
   );
 
   return (
-    <div className="size-full overflow-auto bg-black selection:bg-green-400 selection:text-black">
-      <Navbar />
-      
+    <div className="size-full overflow-auto bg-black selection:bg-green-400 selection:text-black relative">
+      {/* Background Animated Blinking Glows */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden mix-blend-screen">
+        <div className="absolute top-[10%] -left-[10%] w-[50vw] h-[50vw] max-w-[800px] max-h-[800px] bg-green-500/20 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-[10%] -right-[10%] w-[60vw] h-[60vw] max-w-[900px] max-h-[900px] bg-emerald-500/15 rounded-full blur-[150px] animate-pulse" style={{ animationDuration: '7s' }} />
+      </div>
+
+      {/* Global Fixed 3D Paddle Overlay */}
+      <div className="fixed -right-12 md:-right-24 xl:-right-12 top-[15vh] w-[500px] xl:w-[600px] h-[70vh] z-40 hidden lg:block pointer-events-none group">
+         <div className="w-full h-full pointer-events-auto">
+            <Paddle3D />
+         </div>
+         <div className="absolute top-1/4 right-20 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-green-400/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            <span className="text-[10px] text-green-400 font-black uppercase tracking-widest">DRAG TO ROTATE 360°</span>
+         </div>
+      </div>
+
+      <div className="relative z-10">
+        <Navbar />
       {/* Hero Section */}
       <div className="relative h-screen w-full overflow-hidden">
         <ImageWithFallback
@@ -142,8 +161,10 @@ export default function App() {
           alt="Pickleball collective"
           className="w-full h-full object-cover opacity-70 brightness-[1.05] contrast-[1.1] transition-opacity duration-1000"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/10 to-black flex items-center">
-          <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/50 to-black flex items-center pt-24 md:pt-0">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left Side: Hero Text */}
+            <div className="relative z-10 w-full">
             <div className="inline-flex items-center gap-2 mb-6 px-5 py-2 rounded-full border border-green-400/20 bg-green-400/5 backdrop-blur-sm">
               <Award className="w-4 h-4 text-green-400" />
               <span className="text-green-400 text-xs font-black tracking-[0.2em] uppercase">USAPA Certified Pro</span>
@@ -171,6 +192,7 @@ export default function App() {
               <Zap className="w-6 h-6 fill-current" />
               Book Session
             </a>
+            </div>
           </div>
         </div>
       </div>
@@ -486,6 +508,7 @@ export default function App() {
           </div>
         </div>
       </footer>
+      </div>
     </div>
   );
 }
