@@ -2,10 +2,11 @@
 
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { Star, Award, Users, Mail, Phone, Zap, TrendingUp, CheckCircle2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Stepper, { Step } from '@/components/Stepper';
 import dynamic from 'next/dynamic';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Paddle3D = dynamic(() => import('../components/Paddle3D'), { ssr: false });
 
@@ -34,6 +35,17 @@ export default function App() {
   const [checkingResult, setCheckingResult] = useState<Booking[] | null>(null);
   const [isChecking, setIsChecking] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [isPaddleExploded, setIsPaddleExploded] = useState(false);
+
+  // Lock scroll when paddle is exploded
+  useEffect(() => {
+    if (isPaddleExploded) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => { document.body.style.overflow = 'auto'; };
+  }, [isPaddleExploded]);
 
   const availableTimes = [
     '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM',
@@ -165,13 +177,100 @@ export default function App() {
       </div>
 
       {/* Global Fixed 3D Paddle Overlay - Desktop Exclusive for UI Clarity */}
-      <div className="fixed -right-12 md:-right-24 xl:-right-12 top-[15vh] w-[500px] xl:w-[600px] h-[70vh] z-40 hidden lg:block pointer-events-none group">
-        <div className="w-full h-full pointer-events-auto">
-          <Paddle3D />
-        </div>
-        <div className="absolute top-1/4 right-20 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-green-400/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-          <span className="text-[10px] text-green-400 font-black uppercase tracking-widest">DRAG TO ROTATE 360°</span>
-        </div>
+      <div className={`fixed inset-0 pointer-events-none group hidden lg:flex items-center justify-center z-[100]`}>
+        <AnimatePresence>
+          {isPaddleExploded && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/70 backdrop-blur-2xl pointer-events-none" 
+            />
+          )}
+        </AnimatePresence>
+
+        <motion.div 
+          animate={isPaddleExploded ? {
+            x: 0,
+            y: 0,
+            width: "80vw",
+            height: "80vh",
+          } : {
+            x: "35vw", 
+            y: "-5vh",
+            width: "550px",
+            height: "65vh",
+          }}
+          transition={{ type: "spring", stiffness: 100, damping: 20 }}
+          className="relative pointer-events-auto flex items-center justify-center"
+        >
+          {/* Circular Glow Background */}
+          <motion.div 
+            animate={{
+              scale: isPaddleExploded ? 1.8 : 1,
+              opacity: isPaddleExploded ? 0.5 : 0.8,
+            }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-green-400/40 rounded-full blur-[120px] pointer-events-none"
+          />
+          
+          {/* Technical Specs Panel */}
+          <AnimatePresence>
+            {isPaddleExploded && (
+              <motion.div 
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 50 }}
+                className="absolute right-0 top-1/2 -translate-y-1/2 w-80 pr-10 hidden xl:flex flex-col gap-6"
+              >
+                {[
+                  { title: "Edge Guard", desc: "Industrial-grade bumper protecting the core from high-impact ground strikes." },
+                  { title: "Carbon Face", desc: "T700 Unidirectional Fiber for maximum grit and explosive spin mechanics." },
+                  { title: "Polymer Core", desc: "16mm Honeycomb structure engineered for vibration damping and power." },
+                  { title: "Ebony Grip", desc: "Premium walnut-finished scales for ergonomic torque and moisture control." },
+                ].map((spec, i) => (
+                  <motion.div 
+                    key={spec.title}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 + (i * 0.1) }}
+                    className="border-r-2 border-green-400/30 pr-6 text-right"
+                  >
+                    <h4 className="text-green-400 font-black text-xs uppercase tracking-[0.3em] mb-2 italic">
+                      {spec.title}
+                    </h4>
+                    <p className="text-zinc-500 text-[11px] font-medium leading-relaxed italic">
+                      {spec.desc}
+                    </p>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <Paddle3D 
+            isExploded={isPaddleExploded} 
+            onExplodeChange={setIsPaddleExploded} 
+          />
+          <AnimatePresence>
+            {isPaddleExploded && (
+              <motion.button 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                onClick={() => setIsPaddleExploded(false)}
+                className="absolute top-0 right-0 md:-top-10 md:-right-10 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-8 py-4 rounded-full font-black uppercase tracking-widest transition-all z-50 backdrop-blur-md"
+              >
+                Close View
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          {!isPaddleExploded && (
+            <div className="absolute top-1/4 right-32 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-green-400/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              <span className="text-[10px] text-green-400 font-black uppercase tracking-widest">DRAG TO ROTATE 360°</span>
+            </div>
+          )}
+        </motion.div>
       </div>
 
       <div className="relative z-10">
