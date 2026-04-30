@@ -5,6 +5,13 @@ import { MessageSquare, X, Send, Bot, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 
+const PickleballIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <circle cx="12" cy="12" r="10" strokeWidth="2" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v2m0 8v2M6 12h2m8 0h2m-5-3h.01M15 15h.01M9 15h.01M9 9h.01" />
+  </svg>
+);
+
 interface Message {
   id: string;
   role: "user" | "assistant";
@@ -89,7 +96,7 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -103,7 +110,7 @@ export default function ChatWidget() {
             <div className="p-4 bg-zinc-950/80 border-b border-zinc-800 flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-green-400/10 flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-green-400" />
+                  <PickleballIcon className="w-5 h-5 text-green-400" />
                 </div>
                 <div>
                   <h3 className="text-white font-black uppercase tracking-widest text-sm">CMA Assistant</h3>
@@ -140,7 +147,7 @@ export default function ChatWidget() {
                     {msg.role === "user" ? (
                       <User className="w-3.5 h-3.5 text-zinc-400" />
                     ) : (
-                      <Bot className="w-3.5 h-3.5 text-green-400" />
+                      <PickleballIcon className="w-3.5 h-3.5 text-green-400" />
                     )}
                   </div>
                   <div
@@ -158,7 +165,7 @@ export default function ChatWidget() {
               {isLoading && (
                 <div className="flex gap-3 max-w-[85%] mr-auto">
                   <div className="w-6 h-6 rounded-full bg-green-400/10 flex items-center justify-center flex-shrink-0 mt-1">
-                    <Bot className="w-3.5 h-3.5 text-green-400" />
+                    <PickleballIcon className="w-3.5 h-3.5 text-green-400" />
                   </div>
                   <div className="px-4 py-3 rounded-2xl rounded-tl-none bg-green-400/10 border border-green-400/20 flex items-center gap-1.5">
                     <motion.div
@@ -206,19 +213,16 @@ export default function ChatWidget() {
         )}
       </AnimatePresence>
 
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => setIsOpen(!isOpen)}
-        className={clsx(
-          "w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-colors duration-300",
-          isOpen
-            ? "bg-zinc-800 text-white hover:bg-zinc-700"
-            : "bg-green-400 text-black hover:bg-green-300 shadow-[0_0_30px_rgba(74,222,128,0.3)]"
-        )}
-      >
-        {isOpen ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6 fill-current" />}
-      </motion.button>
+      {!isOpen && (
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsOpen(true)}
+          className="w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-colors duration-300 bg-green-400 text-black hover:bg-green-300 shadow-[0_0_30px_rgba(74,222,128,0.3)]"
+        >
+          <MessageSquare className="w-6 h-6 fill-current" />
+        </motion.button>
+      )}
     </div>
   );
 }

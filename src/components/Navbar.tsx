@@ -22,7 +22,7 @@ export default function Navbar() {
             <div className="hidden md:flex items-center space-x-10">
               <div className="flex items-center space-x-8 text-sm font-bold tracking-tight text-zinc-400">
 
-                <Link href="/about" className="hover:text-white transition-colors">About</Link>
+                <a href="#about" className="hover:text-white transition-colors">About</a>
               </div>
             </div>
             <a href="#booking" className="bg-green-400 text-black px-4 py-2 md:px-6 md:py-2.5 rounded font-black text-[10px] md:text-sm uppercase tracking-wider hover:bg-green-300 transition-all shadow-[0_0_20px_rgba(74,222,128,0.2)] hover:shadow-[0_0_30px_rgba(74,222,128,0.4)]">

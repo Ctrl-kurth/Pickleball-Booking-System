@@ -9,6 +9,7 @@ import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Paddle3D = dynamic(() => import('../components/Paddle3D'), { ssr: false });
+import CircularGallery from '../components/CircularGallery';
 
 interface Booking {
   _id: string;
@@ -338,60 +339,58 @@ export default function App() {
           <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 md:px-12 py-32">
+        <div id="about" className="max-w-7xl mx-auto px-6 md:px-12 py-32 scroll-mt-20">
           {/* Profile Header (Moved above stepper) */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20 items-start">
-            <div className="lg:col-span-2 bg-zinc-900/40 border border-zinc-800 rounded-3xl p-10 backdrop-blur-sm hover:border-zinc-700 transition-colors">
-              <h2 className="text-3xl font-black mb-8 text-white tracking-tighter italic">THE PROFILE</h2>
-              <div className="relative group overflow-hidden rounded-2xl mb-8 flex items-center justify-center bg-black">
-                <ImageWithFallback
-                  src="/pb3.jpg"
-                  alt="Coach Marvin Profile"
-                  className="w-full h-auto object-cover transform transition-transform duration-[2s] group-hover:scale-110 opacity-90 brightness-[1.05]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
-              </div>
-              <p className="text-zinc-400 mb-10 leading-relaxed font-medium text-lg italic">
-                &quot;With over 10 years of competitive experience, I don&apos;t just teach the game; I teach the winning mindset.&quot;
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-start gap-5 p-5 rounded-2xl bg-zinc-800/20 border border-zinc-800/50">
-                  <div className="w-12 h-12 rounded-xl bg-green-400/10 flex items-center justify-center flex-shrink-0 text-green-400 shadow-inner">
-                    <Award className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <div className="font-black text-white text-xs uppercase tracking-[0.2em] mb-1">Elite Status</div>
-                    <div className="text-sm text-zinc-400 font-bold">USAPA Level II, PTR Professional</div>
-                  </div>
+          <div className="flex flex-col gap-12 mb-20 items-center">
+            <div className="w-full max-w-5xl bg-zinc-900/40 border border-zinc-800 rounded-3xl p-10 backdrop-blur-sm hover:border-zinc-700 transition-colors">
+              <h2 className="text-3xl font-black mb-8 text-white tracking-tighter italic uppercase">The Profile</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-stretch">
+                <div className="relative group overflow-hidden rounded-2xl h-[300px] md:h-auto flex items-center justify-center bg-black">
+                  <ImageWithFallback
+                    src="/pb3.jpg"
+                    alt="Coach Marvin Profile"
+                    className="w-full h-full object-cover object-center transform transition-transform duration-[2s] group-hover:scale-110 opacity-90 brightness-[1.05]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
                 </div>
-                <div className="flex items-start gap-5 p-5 rounded-2xl bg-zinc-800/20 border border-zinc-800/50">
-                  <div className="w-12 h-12 rounded-xl bg-green-400/10 flex items-center justify-center flex-shrink-0 text-green-400 shadow-inner">
-                    <Star className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <div className="font-black text-white text-xs uppercase tracking-[0.2em] mb-1">Core Mastery</div>
-                    <div className="text-sm text-zinc-400 font-bold">Dinking, Serves, Mental Fortitude</div>
+                
+                <div className="space-y-6 text-zinc-400 leading-relaxed font-medium text-lg flex flex-col justify-center">
+                  <p>
+                    I’m <span className="text-white font-bold">Coach Marvin</span>, a tennis and pickleball trainer focused on developing players from beginner to competitive level. Known for a unique, <span className="text-green-400 font-bold">game-based coaching style</span> that helps players improve faster and play smarter.
+                  </p>
+                  <p>
+                    With over <span className="text-white font-bold">300+ students</span> coached, my mission is to help players build strong fundamentals and real match confidence. It’s incredibly rewarding to see athletes like <span className="text-white font-bold italic">Ohliber and James</span> already stepping up and showing serious competitive potential.
+                  </p>
+                  <div className="p-5 mt-4 border-l-4 border-green-400 bg-green-400/5 rounded-r-2xl">
+                    <p className="text-green-400 font-bold italic text-base">
+                      Due to high demand, this website is for easier booking and scheduling of sessions.
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-10 backdrop-blur-sm h-full">
-              <h3 className="text-2xl font-black mb-8 text-white tracking-tighter">CONNECT</h3>
-              <div className="space-y-4">
-                <a href="mailto:coach@marvin.com" className="flex items-center gap-5 p-5 rounded-2xl bg-zinc-800/20 hover:bg-green-400 hover:text-black transition-all group font-bold">
-                  <div className="w-12 h-12 rounded-xl bg-green-400/10 flex items-center justify-center group-hover:bg-black/10 transition-colors">
-                    <Mail className="w-6 h-6 text-green-400 group-hover:text-black" />
-                  </div>
-                  <span className="tracking-tight">coach@marvin.com</span>
-                </a>
-                <a href="tel:+15551234567" className="flex items-center gap-5 p-5 rounded-2xl bg-zinc-800/20 hover:bg-green-400 hover:text-black transition-all group font-bold">
-                  <div className="w-12 h-12 rounded-xl bg-green-400/10 flex items-center justify-center group-hover:bg-black/10 transition-colors">
-                    <Phone className="w-6 h-6 text-green-400 group-hover:text-black" />
-                  </div>
-                  <span className="tracking-tight">(555) 123-4567</span>
-                </a>
-              </div>
+            {/* Circular Gallery Landscape */}
+            <div className="w-full max-w-5xl h-[350px] md:h-[450px] relative rounded-3xl overflow-hidden bg-zinc-900/40 border border-zinc-800 backdrop-blur-sm hover:border-zinc-700 transition-colors">
+              <CircularGallery 
+                bend={1} 
+                textColor="#ffffff" 
+                borderRadius={0.05} 
+                scrollSpeed={2}
+                scrollEase={0.025}
+                items={[
+                  { image: '/scm1.jpg', text: 'Action' },
+                  { image: '/scm2.jpg', text: 'Focus' },
+                  { image: '/scm3.jpg', text: 'Intensity' },
+                  { image: '/scm4.jpg', text: 'Drills' },
+                  { image: '/scm5.jpg', text: 'Match' },
+                  { image: '/scm6.jpg', text: 'Victory' },
+                  { image: '/scm7.jpg', text: 'Serve' },
+                  { image: '/scm8.jpg', text: 'Drive' },
+                  { image: '/scm9.jpg', text: 'Drop' },
+                  { image: '/scm10.jpg', text: 'Smash' }
+                ]}
+              />
             </div>
           </div>
 
