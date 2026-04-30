@@ -6,7 +6,7 @@ import { Coach } from "@/models/Coach";
 
 export async function POST(req: Request) {
   try {
-    const { message, history } = await req.json();
+    const { message } = await req.json();
 
     if (!message) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });

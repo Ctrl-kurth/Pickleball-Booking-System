@@ -8,6 +8,7 @@ export default function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="group flex items-center">
               <div className="relative h-14 w-14 md:h-20 md:w-20 group-hover:scale-105 transition-transform duration-500">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/pb4_clean.png?v=4"
                   alt="PB4 Logo"

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import Image, { ImageProps } from 'next/image';
+import { ImageProps } from 'next/image';
 
 interface ImageWithFallbackProps extends Omit<ImageProps, 'src'> {
   src: string;
@@ -18,6 +18,7 @@ export const ImageWithFallback = ({
   const [imgSrc, setImgSrc] = useState(src);
 
   return (
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={imgSrc}
       alt={alt}

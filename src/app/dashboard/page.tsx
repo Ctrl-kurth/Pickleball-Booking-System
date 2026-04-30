@@ -58,12 +58,13 @@ export default function AdminDashboard() {
   }, [retryCount]);
 
   useEffect(() => {
+    let timer: NodeJS.Timeout;
     if (retryCount === 0) {
-      fetchBookings();
+      timer = setTimeout(fetchBookings, 0);
     } else {
-      const timer = setTimeout(fetchBookings, 3000);
-      return () => clearTimeout(timer);
+      timer = setTimeout(fetchBookings, 3000);
     }
+    return () => clearTimeout(timer);
   }, [fetchBookings, retryCount]);
 
   const updateStatus = async (id: string, status: string) => {

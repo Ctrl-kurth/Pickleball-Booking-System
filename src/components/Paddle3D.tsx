@@ -38,6 +38,9 @@ const woodDataURL = "data:image/svg+xml;utf8," + encodeURIComponent(`
 </svg>
 `);
 
+// Base Paddle Geometry Definition (Shared Reference)
+const paddleParams = { w: 2.4, h: 3.0, r: 0.5 };
+
 function ExplodablePaddle({
   isExploded,
   onToggle
@@ -78,9 +81,6 @@ function ExplodablePaddle({
       group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, targetRotation.current, 0.05);
     }
   });
-
-  // Base Paddle Geometry Definition (Shared Reference)
-  const paddleParams = { w: 2.4, h: 3.0, r: 0.5 };
 
   const paddleShape = useMemo(() => {
     const { w, h, r } = paddleParams;
@@ -136,7 +136,7 @@ function ExplodablePaddle({
   const {
     guardZ, guardScale,
     topZ, coreScale, bottomZ,
-    handleScaleZ, labelOpacity
+    handleScaleZ
   } = useSpring({
     guardZ: isExploded ? 1.8 : 0,
     guardScale: isExploded ? 1.05 : 1.0,
