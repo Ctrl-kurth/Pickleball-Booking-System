@@ -6,10 +6,6 @@ const nextConfig: NextConfig = {
       fullUrl: false,
     },
   },
-  devIndicators: {
-    appIsrStatus: false,
-    buildActivity: true,
-  },
 };
 
 export default nextConfig;
