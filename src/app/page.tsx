@@ -59,9 +59,9 @@ export default function App() {
   ];
 
   const stats = [
-    { label: 'Students Coached', value: '200+' },
-    { label: 'Years Experience', value: '10+' },
-    { label: 'Success Rate', value: '98%' },
+    { label: 'Students Coached', value: '300+' },
+    { label: 'Development Focus', value: 'Youth' },
+    { label: 'Training Style', value: 'Game-Based' },
   ];
 
   const handleBooking = async () => {
@@ -286,21 +286,37 @@ export default function App() {
             <div className="max-w-7xl mx-auto px-6 md:px-12 w-full grid grid-cols-1 lg:grid-cols-2 lg:items-center">
               {/* Left Side: Hero Text */}
               <div className="relative z-10 w-full text-left">
-                <div className="inline-flex items-center gap-2 mb-6 px-5 py-2 rounded-full border border-green-400/20 bg-green-400/5 backdrop-blur-sm">
-                  <Award className="w-4 h-4 text-green-400" />
-                  <span className="text-green-400 text-xs font-black tracking-[0.2em] uppercase">USAPA Certified Pro</span>
-                </div>
                 <h1 className="text-4xl sm:text-5xl md:text-[9rem] font-black text-white mb-6 tracking-tighter leading-[0.85]">
                   COACH<br />
                   <span className="text-green-400 italic">MARVIN</span>
                 </h1>
-                <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-2xl font-medium tracking-tight">
-                  Master the court with personalized training from a championship coach.
-                </p>
-                <div className="flex flex-wrap items-center gap-6 md:gap-12 mb-16">
+                <div className="flex flex-col gap-4 mb-12 max-w-2xl">
+                  {[
+                    "Building Competitive Players from the Ground Up",
+                    "Developing Future Competitive Players",
+                    "From Beginner to Competitive – One Session at a Time"
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-start gap-4 group">
+                      <div className="mt-1 flex-shrink-0">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-green-400 opacity-80 group-hover:opacity-100 group-hover:rotate-90 transition-all duration-500">
+                          <circle cx="12" cy="12" r="10" />
+                          <circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none" />
+                          <circle cx="16" cy="8" r="1.5" fill="currentColor" stroke="none" />
+                          <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+                          <circle cx="8" cy="16" r="1.5" fill="currentColor" stroke="none" />
+                          <circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none" />
+                        </svg>
+                      </div>
+                      <span className="text-lg md:text-xl text-zinc-200 group-hover:text-white font-medium tracking-tight transition-colors">
+                        {item}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-wrap items-start gap-6 md:gap-10 mb-16">
                   {stats.map((stat) => (
                     <div key={stat.label} className="group min-w-[80px]">
-                      <div className="text-3xl md:text-5xl font-black text-green-400 mb-1 tracking-tighter italic">{stat.value}</div>
+                      <div className="text-2xl md:text-4xl font-black text-green-400 mb-1 tracking-tighter italic whitespace-nowrap">{stat.value}</div>
                       <div className="text-[9px] md:text-[10px] text-zinc-500 uppercase font-black tracking-[0.2em] whitespace-nowrap">{stat.label}</div>
                       <div className="h-0.5 w-0 group-hover:w-full bg-green-400 transition-all duration-300 mt-1" />
                     </div>
