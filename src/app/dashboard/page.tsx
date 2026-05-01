@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { format } from "date-fns";
-import { Calendar, Clock, DollarSign, User, Mail, CheckCircle, XCircle, Trash2, Filter } from "lucide-react";
+import { Calendar, Clock, DollarSign, User, Mail, CheckCircle, XCircle, Trash2, Filter, LogOut } from "lucide-react";
 import Link from "next/link";
 
 interface Booking {
@@ -24,6 +24,17 @@ export default function AdminDashboard() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/auth/logout", { method: "POST" });
+      if (res.ok) {
+        window.location.href = "/login";
+      }
+    } catch (err) {
+      console.error("Failed to logout", err);
+    }
+  };
 
   const filteredBookings = bookings.filter(b =>
     b.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -170,20 +181,31 @@ export default function AdminDashboard() {
             </h1>
           </div>
         </div>
-        <div className="relative group hover:scale-105 transition-transform duration-500">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-green-400 to-emerald-600 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-          <div className="relative flex items-center gap-5 px-6 py-4 bg-zinc-900 border border-zinc-800/80 rounded-2xl shadow-2xl overflow-hidden">
-            <div className="w-12 h-12 rounded-xl bg-green-400/10 flex items-center justify-center flex-shrink-0">
-              <Calendar className="w-6 h-6 text-green-400" />
-            </div>
-            <div>
-              <div className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-1">Total Bookings</div>
-              <div className="text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-zinc-400">
-                {bookings.length}
+        <div className="flex items-center gap-4">
+          <div className="relative group hover:scale-105 transition-transform duration-500">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-green-400 to-emerald-600 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
+            <div className="relative flex items-center gap-5 px-6 py-4 bg-zinc-900 border border-zinc-800/80 rounded-2xl shadow-2xl overflow-hidden">
+              <div className="w-12 h-12 rounded-xl bg-green-400/10 flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-6 h-6 text-green-400" />
               </div>
+              <div>
+                <div className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-1">Total Bookings</div>
+                <div className="text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-zinc-400">
+                  {bookings.length}
+                </div>
+              </div>
+              <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-green-400/10 blur-xl rounded-full" />
             </div>
-            <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-green-400/10 blur-xl rounded-full" />
           </div>
+          
+          <button
+            onClick={handleLogout}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-900/50 border border-zinc-800 hover:border-red-500/50 hover:bg-red-500/10 rounded-xl transition-all group"
+            title="Log Out"
+          >
+            <LogOut className="w-4 h-4 text-zinc-400 group-hover:text-red-400 transition-colors" />
+            <span className="hidden sm:inline font-bold text-xs text-zinc-400 group-hover:text-red-400 transition-colors uppercase tracking-widest">Logout</span>
+          </button>
         </div>
       </div>
 

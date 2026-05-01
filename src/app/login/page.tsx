@@ -53,7 +53,7 @@ export default function LoginPage() {
             <form onSubmit={handleLogin} className="space-y-6">
 
               <div className="space-y-3">
-                <label className="block text-xs font-black text-zinc-500 uppercase tracking-[0.2em]">Email Address</label>
+                <label className="block text-xs font-black text-zinc-500 uppercase tracking-[0.2em]">Email</label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                     <Mail className="w-5 h-5 text-zinc-600 group-focus-within:text-green-400 transition-colors" />
@@ -70,7 +70,7 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-3">
-                <label className="block text-xs font-black text-zinc-500 uppercase tracking-[0.2em]">Master Password</label>
+                <label className="block text-xs font-black text-zinc-500 uppercase tracking-[0.2em]">Password</label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                     <Lock className="w-5 h-5 text-zinc-600 group-focus-within:text-green-400 transition-colors" />
@@ -99,7 +99,7 @@ export default function LoginPage() {
                 className="group relative w-full overflow-hidden bg-green-400 text-black py-5 rounded-2xl font-black uppercase tracking-[0.3em] hover:bg-green-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_30px_rgba(74,222,128,0.2)] mt-8"
               >
                 <span className="relative z-10 flex items-center justify-center gap-3">
-                  {isLoading ? 'AUTHENTICATING...' : 'INITIALIZE OVERRIDE'}
+                  {isLoading ? 'Authenticating...' : 'Log in'}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </span>
               </button>

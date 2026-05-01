@@ -54,8 +54,8 @@ export default function App() {
   ];
 
   const sessionTypes = [
-    { name: 'Private Lesson', duration: 'Hourly Rate', price: '$75/hr', rawPrice: 75, icon: Users },
-    { name: 'Group Session', duration: 'Hourly Rate', price: '$40/hr', rawPrice: 40, icon: Users },
+    { name: 'Private & Group Session', duration: 'Hourly Rate', price: '$75/hr', rawPrice: 75, icon: Users },
+    { name: 'Competitive Training', duration: 'Hourly Rate', price: '$40/hr', rawPrice: 40, icon: Users },
     { name: 'Beginner Package', duration: '4 sessions', price: '$260', rawPrice: 260, icon: TrendingUp },
   ];
 
@@ -181,23 +181,23 @@ export default function App() {
       <div className={`fixed inset-0 pointer-events-none group hidden lg:flex items-center justify-center z-[100]`}>
         <AnimatePresence>
           {isPaddleExploded && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/70 backdrop-blur-2xl pointer-events-none" 
+              className="absolute inset-0 bg-black/70 backdrop-blur-2xl pointer-events-none"
             />
           )}
         </AnimatePresence>
 
-        <motion.div 
+        <motion.div
           animate={isPaddleExploded ? {
             x: 0,
             y: 0,
             width: "80vw",
             height: "80vh",
           } : {
-            x: "35vw", 
+            x: "35vw",
             y: "-5vh",
             width: "550px",
             height: "65vh",
@@ -206,18 +206,18 @@ export default function App() {
           className="relative pointer-events-auto flex items-center justify-center"
         >
           {/* Circular Glow Background */}
-          <motion.div 
+          <motion.div
             animate={{
               scale: isPaddleExploded ? 1.8 : 1,
               opacity: isPaddleExploded ? 0.5 : 0.8,
             }}
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-green-400/40 rounded-full blur-[120px] pointer-events-none"
           />
-          
+
           {/* Technical Specs Panel */}
           <AnimatePresence>
             {isPaddleExploded && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 50 }}
@@ -229,7 +229,7 @@ export default function App() {
                   { title: "Polymer Core", desc: "16mm Honeycomb structure engineered for vibration damping and power." },
                   { title: "Ebony Grip", desc: "Premium walnut-finished scales for ergonomic torque and moisture control." },
                 ].map((spec, i) => (
-                  <motion.div 
+                  <motion.div
                     key={spec.title}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -248,13 +248,13 @@ export default function App() {
             )}
           </AnimatePresence>
 
-          <Paddle3D 
-            isExploded={isPaddleExploded} 
-            onExplodeChange={setIsPaddleExploded} 
+          <Paddle3D
+            isExploded={isPaddleExploded}
+            onExplodeChange={setIsPaddleExploded}
           />
           <AnimatePresence>
             {isPaddleExploded && (
-              <motion.button 
+              <motion.button
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
@@ -353,7 +353,7 @@ export default function App() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
                 </div>
-                
+
                 <div className="space-y-6 text-zinc-400 leading-relaxed font-medium text-lg flex flex-col justify-center">
                   <p>
                     I’m <span className="text-white font-bold">Coach Marvin</span>, a tennis and pickleball trainer focused on developing players from beginner to competitive level. Known for a unique, <span className="text-green-400 font-bold">game-based coaching style</span> that helps players improve faster and play smarter.
@@ -371,26 +371,35 @@ export default function App() {
             </div>
 
             {/* Circular Gallery Landscape */}
-            <div className="w-full max-w-5xl h-[350px] md:h-[450px] relative rounded-3xl overflow-hidden bg-zinc-900/40 border border-zinc-800 backdrop-blur-sm hover:border-zinc-700 transition-colors">
-              <CircularGallery 
-                bend={1} 
-                textColor="#ffffff" 
-                borderRadius={0.05} 
-                scrollSpeed={2}
-                scrollEase={0.025}
-                items={[
-                  { image: '/scm1.jpg', text: 'Action' },
-                  { image: '/scm2.jpg', text: 'Focus' },
-                  { image: '/scm3.jpg', text: 'Intensity' },
-                  { image: '/scm4.jpg', text: 'Drills' },
-                  { image: '/scm5.jpg', text: 'Match' },
-                  { image: '/scm6.jpg', text: 'Victory' },
-                  { image: '/scm7.jpg', text: 'Serve' },
-                  { image: '/scm8.jpg', text: 'Drive' },
-                  { image: '/scm9.jpg', text: 'Drop' },
-                  { image: '/scm10.jpg', text: 'Smash' }
-                ]}
-              />
+            <div className="w-full max-w-5xl flex flex-col gap-8 mt-10">
+              <div className="text-center space-y-4">
+                <h3 className="text-3xl md:text-4xl font-black text-white tracking-tighter italic uppercase">Players Coached</h3>
+                <div className="h-1 w-16 bg-green-400 mx-auto rounded-full" />
+                <p className="text-zinc-400 font-medium max-w-2xl mx-auto text-sm md:text-base">
+                  Every player brings a unique set of strengths to the court. My coaching philosophy is built on identifying those strengths, refining mechanics, and instilling the strategic mindset required to dominate at a competitive level.
+                </p>
+              </div>
+              <div className="w-full h-[350px] md:h-[450px] relative rounded-3xl overflow-hidden bg-zinc-900/40 border border-zinc-800 backdrop-blur-sm hover:border-zinc-700 transition-colors shadow-2xl">
+                <CircularGallery
+                  bend={1}
+                  textColor="#ffffff"
+                  borderRadius={0.05}
+                  scrollSpeed={2}
+                  scrollEase={0.025}
+                  items={[
+                    { image: '/scm1.jpg', text: '' },
+                    { image: '/scm2.jpg', text: '' },
+                    { image: '/scm3.jpg', text: '' },
+                    { image: '/scm4.jpg', text: '' },
+                    { image: '/scm5.jpg', text: '' },
+                    { image: '/scm6.jpg', text: '' },
+                    { image: '/scm7.jpg', text: '' },
+                    { image: '/scm8.jpg', text: '' },
+                    { image: '/scm9.jpg', text: '' },
+                    { image: '/scm10.jpg', text: '' }
+                  ]}
+                />
+              </div>
             </div>
           </div>
 
@@ -419,13 +428,13 @@ export default function App() {
                         key={session.name}
                         onClick={() => setSessionType(session.name)}
                         className={`group relative p-6 rounded-3xl transition-all duration-500 overflow-hidden text-left ${sessionType === session.name
-                            ? 'bg-gradient-to-br from-green-400/20 to-green-400/5 border-2 border-green-400 shadow-[0_0_50px_rgba(74,222,128,0.15)]'
-                            : 'bg-zinc-900/40 border border-zinc-800 hover:border-green-400/40 hover:bg-zinc-900/60'
+                          ? 'bg-gradient-to-br from-green-400/20 to-green-400/5 border-2 border-green-400 shadow-[0_0_50px_rgba(74,222,128,0.15)]'
+                          : 'bg-zinc-900/40 border border-zinc-800 hover:border-green-400/40 hover:bg-zinc-900/60'
                           }`}
                       >
                         <div className={`inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-4 transition-all duration-500 ${sessionType === session.name
-                            ? 'bg-green-400 text-black scale-110 rotate-3'
-                            : 'bg-zinc-800/50 text-green-400 group-hover:bg-green-400 group-hover:text-black group-hover:scale-110'
+                          ? 'bg-green-400 text-black scale-110 rotate-3'
+                          : 'bg-zinc-800/50 text-green-400 group-hover:bg-green-400 group-hover:text-black group-hover:scale-110'
                           }`}>
                           <Icon className="w-6 h-6" />
                         </div>
@@ -474,8 +483,8 @@ export default function App() {
                           key={time}
                           onClick={() => setSelectedTime(time)}
                           className={`py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs ${selectedTime === time
-                              ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
-                              : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
+                            ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
+                            : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
                             }`}
                         >
                           {time}
@@ -503,8 +512,8 @@ export default function App() {
                             key={dur}
                             onClick={() => setSelectedDuration(dur)}
                             className={`py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs md:text-sm ${selectedDuration === dur
-                                ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
-                                : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
+                              ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
+                              : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
                               }`}
                           >
                             {dur} {dur === 1 ? 'hr' : 'hrs'}

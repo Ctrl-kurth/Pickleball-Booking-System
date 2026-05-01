@@ -304,14 +304,16 @@ class Media {
   }
 
   createTitle() {
-    this.title = new Title({
-      gl: this.gl,
-      plane: this.plane,
-      renderer: this.renderer,
-      text: this.text,
-      textColor: this.textColor,
-      font: this.font
-    });
+    if (this.text) {
+      this.title = new Title({
+        gl: this.gl,
+        plane: this.plane,
+        renderer: this.renderer,
+        text: this.text,
+        textColor: this.textColor,
+        font: this.font
+      });
+    }
   }
 
   update(scroll: { current: number; last: number }, direction: 'right' | 'left') {
