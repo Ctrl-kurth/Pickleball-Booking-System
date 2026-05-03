@@ -41,6 +41,16 @@ export default function App() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [bookedSlots, setBookedSlots] = useState<{ startTime: string, endTime: string }[]>([]);
   const [isMobile, setIsMobile] = useState(false);
+  const [isScrolledPastHero, setIsScrolledPastHero] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolledPastHero(window.scrollY > 300);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial check
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -395,9 +405,28 @@ export default function App() {
           </AnimatePresence>
 
           {!isPaddleExploded && (
-            <div className="absolute top-1/4 right-32 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-green-400/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-              <span className="text-[10px] text-green-400 font-black uppercase tracking-widest">DRAG TO ROTATE 360°</span>
-            </div>
+            <>
+              <div className="absolute top-1/4 right-32 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-green-400/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <span className="text-[10px] text-green-400 font-black uppercase tracking-widest">DRAG TO ROTATE 360°</span>
+              </div>
+              
+              <motion.div 
+                animate={{ 
+                  opacity: isScrolledPastHero ? 0 : 1,
+                  y: isScrolledPastHero ? 20 : 0
+                }}
+                transition={{ duration: 0.3 }}
+                className="absolute -bottom-[5%] left-1/2 -translate-x-1/2 flex flex-col items-center text-center gap-3 w-80 pointer-events-none"
+              >
+                <div className="inline-block px-4 py-1.5 bg-black/50 backdrop-blur-md border border-green-400/20 rounded-full text-green-400 text-[9px] font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(74,222,128,0.1)]">
+                  Coming Soon
+                </div>
+                <h2 className="text-2xl font-black text-white tracking-tighter italic uppercase drop-shadow-xl">Pro Series Paddle</h2>
+                <p className="text-zinc-400 font-medium text-[11px] leading-relaxed italic drop-shadow-lg">
+                  Coach Marvin is currently designing his signature pickleball paddle. Click or tap the paddle to explore the prototype in 3D.
+                </p>
+              </motion.div>
+            </>
           )}
         </motion.div>
         </div>
