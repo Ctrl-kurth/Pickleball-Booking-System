@@ -199,15 +199,15 @@ export default function App() {
                 setSelectedTime('');
               }
             }}
-            className={`flex flex-col items-center justify-center p-2 rounded-xl text-sm font-bold transition-all ${!isCurrentMonth ? 'text-zinc-700 pointer-events-none opacity-0' :
+            className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-xl text-xs sm:text-sm font-bold transition-all ${!isCurrentMonth ? 'text-zinc-700 pointer-events-none opacity-0' :
                 isPast ? 'text-zinc-600 pointer-events-none' :
                   isFullyBooked ? 'text-red-500/50 pointer-events-none bg-red-500/5' :
                     isSelected ? 'bg-green-400 text-black shadow-[0_0_20px_rgba(74,222,128,0.3)] cursor-pointer' :
                       'text-white hover:bg-zinc-800 cursor-pointer'
               }`}
           >
-            <span className="w-11 h-11 flex items-center justify-center min-h-[44px] min-w-[44px]">{formattedDate}</span>
-            {isFullyBooked && <span className="text-[8px] uppercase tracking-widest text-red-500 font-black mt-1">Full</span>}
+            <span>{formattedDate}</span>
+            {isFullyBooked && <span className="absolute bottom-1 text-[6px] sm:text-[8px] uppercase tracking-widest text-red-500 font-black">Full</span>}
           </div>
         );
         day = addDays(day, 1);
@@ -221,7 +221,7 @@ export default function App() {
     }
 
     return (
-      <div className="bg-zinc-800/40 border border-zinc-800 p-5 rounded-2xl w-full">
+      <div className="bg-zinc-800/40 border border-zinc-800 p-3 sm:p-5 rounded-2xl w-full">
         <div className="flex justify-between items-center mb-6">
           <button type="button" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="w-11 h-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors">
             <ChevronLeft className="w-5 h-5" />
