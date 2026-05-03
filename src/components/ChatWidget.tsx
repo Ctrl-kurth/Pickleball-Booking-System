@@ -122,7 +122,7 @@ export default function ChatWidget() {
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-zinc-500 hover:text-white transition-colors p-1"
+                className="text-zinc-500 hover:text-white transition-colors p-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -203,7 +203,7 @@ export default function ChatWidget() {
                 <button
                   type="submit"
                   disabled={isLoading || !input.trim()}
-                  className="absolute right-2 p-1.5 rounded-lg bg-green-400/10 text-green-400 hover:bg-green-400 hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="absolute right-2 p-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-green-400/10 text-green-400 hover:bg-green-400 hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4" />
                 </button>

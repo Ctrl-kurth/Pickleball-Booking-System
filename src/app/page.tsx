@@ -206,7 +206,7 @@ export default function App() {
                       'text-white hover:bg-zinc-800 cursor-pointer'
               }`}
           >
-            <span className="w-8 h-8 flex items-center justify-center">{formattedDate}</span>
+            <span className="w-11 h-11 flex items-center justify-center min-h-[44px] min-w-[44px]">{formattedDate}</span>
             {isFullyBooked && <span className="text-[8px] uppercase tracking-widest text-red-500 font-black mt-1">Full</span>}
           </div>
         );
@@ -223,13 +223,13 @@ export default function App() {
     return (
       <div className="bg-zinc-800/40 border border-zinc-800 p-5 rounded-2xl w-full">
         <div className="flex justify-between items-center mb-6">
-          <button type="button" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors">
+          <button type="button" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="w-11 h-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors">
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div className="text-white font-black uppercase tracking-widest text-sm">
             {format(currentMonth, "MMMM yyyy")}
           </div>
-          <button type="button" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors">
+          <button type="button" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="w-11 h-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors">
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
@@ -263,7 +263,7 @@ export default function App() {
               setSelectedDate('');
               setSelectedTime('');
             }}
-            className="w-full bg-green-400 text-black py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-green-300 transition-all hover:scale-[1.02]"
+            className="w-full bg-green-400 text-black py-5 min-h-[44px] rounded-2xl font-black uppercase tracking-widest hover:bg-green-300 transition-all hover:scale-[1.02]"
           >
             Back to Court
           </button>
@@ -382,7 +382,7 @@ export default function App() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 onClick={() => setIsPaddleExploded(false)}
-                className="absolute top-0 right-0 md:-top-10 md:-right-10 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-8 py-4 rounded-full font-black uppercase tracking-widest transition-all z-50 backdrop-blur-md"
+                className="absolute top-0 right-0 md:-top-10 md:-right-10 bg-white/10 hover:bg-white/20 text-white border border-white/20 min-h-[44px] px-8 py-4 rounded-full font-black uppercase tracking-widest transition-all z-50 backdrop-blur-md"
               >
                 Close View
               </motion.button>
@@ -411,7 +411,7 @@ export default function App() {
             <div className="max-w-7xl mx-auto px-6 md:px-12 w-full grid grid-cols-1 lg:grid-cols-2 lg:items-center">
               {/* Left Side: Hero Text */}
               <div className="relative z-10 w-full text-left">
-                <h1 className="text-4xl sm:text-5xl md:text-[9rem] font-black text-white mb-6 tracking-tighter leading-[0.85]">
+                <h1 className="text-[clamp(3rem,10vw,9rem)] font-black text-white mb-6 tracking-tighter leading-[0.85]">
                   COACH<br />
                   <span className="text-green-400 italic">MARVIN</span>
                 </h1>
@@ -449,7 +449,7 @@ export default function App() {
                 </div>
                 <a
                   href="#booking"
-                  className="inline-flex items-center gap-3 px-8 py-4 md:px-10 md:py-5 bg-green-400 text-black rounded-full text-lg md:text-xl font-black tracking-widest uppercase hover:bg-green-300 transition-all hover:scale-105 shadow-[0_0_50px_rgba(74,222,128,0.3)] hover:shadow-[0_0_70px_rgba(74,222,128,0.5)] active:scale-95"
+                  className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] gap-3 px-8 py-4 md:px-10 md:py-5 bg-green-400 text-black rounded-full text-lg md:text-xl font-black tracking-widest uppercase hover:bg-green-300 transition-all hover:scale-105 shadow-[0_0_50px_rgba(74,222,128,0.3)] hover:shadow-[0_0_70px_rgba(74,222,128,0.5)] active:scale-95"
                 >
                   < Zap className="w-5 h-5 md:w-6 md:h-6 fill-current" />
                   Book Session
@@ -492,7 +492,7 @@ export default function App() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     onClick={() => setIsPaddleExploded(false)}
-                    className="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white border border-white/20 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all z-50 backdrop-blur-md"
+                    className="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white border border-white/20 min-h-[44px] min-w-[44px] px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all z-50 backdrop-blur-md"
                   >
                     Close
                   </motion.button>
@@ -649,7 +649,7 @@ export default function App() {
                             key={time}
                             disabled={isBooked || !selectedDate}
                             onClick={() => setSelectedTime(time)}
-                            className={`py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs ${isBooked
+                            className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs ${isBooked
                                 ? 'bg-zinc-800/20 border border-zinc-800 text-zinc-600 opacity-50 cursor-not-allowed line-through'
                                 : selectedTime === time
                                   ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
@@ -681,7 +681,7 @@ export default function App() {
                             type="button"
                             key={dur}
                             onClick={() => setSelectedDuration(dur)}
-                            className={`py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs md:text-sm ${selectedDuration === dur
+                            className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs md:text-sm ${selectedDuration === dur
                               ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
                               : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
                               }`}
@@ -709,7 +709,7 @@ export default function App() {
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        className="w-full px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
+                      className="w-full min-h-[44px] px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
                         placeholder="JOHN"
                       />
                     </div>
@@ -720,7 +720,7 @@ export default function App() {
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        className="w-full px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
+                      className="w-full min-h-[44px] px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
                         placeholder="DOE"
                       />
                     </div>
@@ -733,7 +733,7 @@ export default function App() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
+                      className="w-full min-h-[44px] px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
                       placeholder="CHAMP@PRO.COM"
                     />
                   </div>
@@ -764,12 +764,12 @@ export default function App() {
                   value={statusEmail}
                   onChange={(e) => setStatusEmail(e.target.value)}
                   placeholder="YOUR REGISTRATION EMAIL"
-                  className="w-full sm:flex-1 px-6 py-4 bg-black border border-zinc-800 rounded-2xl text-white font-bold outline-none focus:border-green-400 transition-colors text-sm sm:text-base"
+                  className="w-full sm:flex-1 min-h-[44px] px-6 py-4 bg-black border border-zinc-800 rounded-2xl text-white font-bold outline-none focus:border-green-400 transition-colors text-sm sm:text-base"
                 />
                 <button
                   onClick={checkStatus}
                   disabled={isChecking}
-                  className="w-full sm:w-auto px-8 py-4 bg-zinc-800 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-green-400 hover:text-black transition-all"
+                  className="w-full sm:w-auto min-h-[44px] px-8 py-4 bg-zinc-800 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-green-400 hover:text-black transition-all"
                 >
                   {isChecking ? '...' : 'CHECK'}
                 </button>
