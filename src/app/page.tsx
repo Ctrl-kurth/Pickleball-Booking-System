@@ -1,8 +1,9 @@
 "use client";
 
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
-import { Star, Award, Users, Mail, Phone, Zap, TrendingUp, CheckCircle2 } from 'lucide-react';
+import { Star, Award, Users, Mail, Phone, Zap, TrendingUp, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, addDays, isBefore, startOfDay } from 'date-fns';
 import Navbar from '@/components/Navbar';
 import Stepper, { Step } from '@/components/Stepper';
 import dynamic from 'next/dynamic';
@@ -37,6 +38,31 @@ export default function App() {
   const [isChecking, setIsChecking] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [isPaddleExploded, setIsPaddleExploded] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [bookedSlots, setBookedSlots] = useState<{ startTime: string, endTime: string }[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/bookings')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const active = data.filter((b: Booking) => b.status !== 'cancelled');
+          setBookedSlots(active.map((b: Booking) => ({
+            startTime: b.startTime,
+            endTime: b.endTime
+          })));
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   // Lock scroll when paddle is exploded
   useEffect(() => {
@@ -52,6 +78,23 @@ export default function App() {
     '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM',
     '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'
   ];
+
+  const checkSlotBooked = (dateString: string, timeString: string, durationInHours: number) => {
+    if (!dateString) return false;
+    const start = new Date(`${dateString} ${timeString}`);
+    const end = new Date(start.getTime() + durationInHours * 60 * 60 * 1000);
+
+    return bookedSlots.some(booking => {
+      const bStart = new Date(booking.startTime);
+      const bEnd = new Date(booking.endTime);
+      return start < bEnd && end > bStart;
+    });
+  };
+
+  const isDayFullyBooked = (dateString: string) => {
+    // Check if all 1-hour slots are booked for this day
+    return availableTimes.every(time => checkSlotBooked(dateString, time, 1));
+  };
 
   const sessionTypes = [
     { name: 'Private & Group Session', duration: 'Hourly Rate', price: '$75/hr', rawPrice: 75, icon: Users },
@@ -123,6 +166,85 @@ export default function App() {
     }
   };
 
+  const renderCalendar = () => {
+    const monthStart = startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(monthStart);
+    const startDate = startOfWeek(monthStart);
+    const endDate = endOfWeek(monthEnd);
+
+    const dateFormat = "d";
+    const rows = [];
+    let days = [];
+    let day = startDate;
+    let formattedDate = "";
+
+    const today = startOfDay(new Date());
+
+    while (day <= endDate) {
+      for (let i = 0; i < 7; i++) {
+        formattedDate = format(day, dateFormat);
+        const cloneDay = day;
+        const isPast = isBefore(day, today);
+        const dayString = format(cloneDay, 'yyyy-MM-dd');
+        const isSelected = selectedDate === dayString;
+        const isCurrentMonth = isSameMonth(day, monthStart);
+        const isFullyBooked = !isPast && isDayFullyBooked(dayString);
+
+        days.push(
+          <div
+            key={day.toString()}
+            onClick={() => {
+              if (!isPast && isCurrentMonth && !isFullyBooked) {
+                setSelectedDate(dayString);
+                setSelectedTime('');
+              }
+            }}
+            className={`flex flex-col items-center justify-center p-2 rounded-xl text-sm font-bold transition-all ${!isCurrentMonth ? 'text-zinc-700 pointer-events-none opacity-0' :
+                isPast ? 'text-zinc-600 pointer-events-none' :
+                  isFullyBooked ? 'text-red-500/50 pointer-events-none bg-red-500/5' :
+                    isSelected ? 'bg-green-400 text-black shadow-[0_0_20px_rgba(74,222,128,0.3)] cursor-pointer' :
+                      'text-white hover:bg-zinc-800 cursor-pointer'
+              }`}
+          >
+            <span className="w-8 h-8 flex items-center justify-center">{formattedDate}</span>
+            {isFullyBooked && <span className="text-[8px] uppercase tracking-widest text-red-500 font-black mt-1">Full</span>}
+          </div>
+        );
+        day = addDays(day, 1);
+      }
+      rows.push(
+        <div className="grid grid-cols-7 gap-1 mb-1" key={day.toString()}>
+          {days}
+        </div>
+      );
+      days = [];
+    }
+
+    return (
+      <div className="bg-zinc-800/40 border border-zinc-800 p-5 rounded-2xl w-full">
+        <div className="flex justify-between items-center mb-6">
+          <button type="button" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors">
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <div className="text-white font-black uppercase tracking-widest text-sm">
+            {format(currentMonth, "MMMM yyyy")}
+          </div>
+          <button type="button" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors">
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
+            <div key={d} className="text-center text-[10px] font-black text-zinc-500 uppercase tracking-widest">{d}</div>
+          ))}
+        </div>
+
+        <div>{rows}</div>
+      </div>
+    );
+  };
+
   if (bookingStatus === 'success') {
     return (
       <main className="min-h-screen bg-black flex items-center justify-center p-6">
@@ -177,9 +299,10 @@ export default function App() {
         <div className="absolute bottom-[10%] -right-[10%] w-[60vw] h-[60vw] max-w-[900px] max-h-[900px] bg-emerald-500/15 rounded-full blur-[150px] animate-pulse" style={{ animationDuration: '7s' }} />
       </div>
 
-      {/* Global Fixed 3D Paddle Overlay - Desktop Exclusive for UI Clarity */}
-      <div className={`fixed inset-0 pointer-events-none group hidden lg:flex items-center justify-center z-[100]`}>
-        <AnimatePresence>
+      {/* Global Fixed 3D Paddle Overlay - Desktop Exclusive */}
+      {!isMobile && (
+        <div className={`fixed inset-0 pointer-events-none group hidden lg:flex items-center justify-center z-[100]`}>
+          <AnimatePresence>
           {isPaddleExploded && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -272,7 +395,8 @@ export default function App() {
             </div>
           )}
         </motion.div>
-      </div>
+        </div>
+      )}
 
       <div className="relative z-10">
         <Navbar />
@@ -314,7 +438,7 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-                <div className="flex flex-wrap items-start gap-6 md:gap-10 mb-16">
+                <div className="grid grid-cols-2 gap-4 md:flex md:flex-wrap items-start md:gap-10 mb-16">
                   {stats.map((stat) => (
                     <div key={stat.label} className="group min-w-[80px]">
                       <div className="text-2xl md:text-4xl font-black text-green-400 mb-1 tracking-tighter italic whitespace-nowrap">{stat.value}</div>
@@ -338,6 +462,51 @@ export default function App() {
           {/* Bottom Deep Fade to blend the image into the background net */}
           <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
         </div>
+
+        {/* Mobile Exclusive 3D Paddle Section - Coming Soon */}
+        {isMobile && (
+          <div className="w-full px-6 py-20 flex flex-col items-center bg-black border-b border-zinc-900 block lg:hidden">
+            <div className="text-center mb-8 space-y-3">
+              <div className="inline-block px-4 py-1 bg-green-400/10 border border-green-400/20 rounded-full text-green-400 text-[10px] font-black uppercase tracking-widest">
+                Coming Soon
+              </div>
+              <h2 className="text-4xl font-black text-white tracking-tighter italic uppercase">Pro Series Paddle</h2>
+              <p className="text-zinc-500 font-medium text-sm max-w-sm mx-auto">
+                Coach Marvin is currently designing his signature pickleball paddle. Tap to explore the prototype in 3D.
+              </p>
+            </div>
+            
+            <div className="w-full max-w-sm h-[450px] relative rounded-3xl bg-zinc-900/40 border border-zinc-800 flex flex-col items-center justify-center overflow-hidden shadow-2xl">
+              {/* Circular Glow */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] bg-green-400/20 rounded-full blur-[80px] pointer-events-none" />
+              
+              <Paddle3D
+                isExploded={isPaddleExploded}
+                onExplodeChange={setIsPaddleExploded}
+              />
+              
+              <AnimatePresence>
+                {isPaddleExploded && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    onClick={() => setIsPaddleExploded(false)}
+                    className="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white border border-white/20 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all z-50 backdrop-blur-md"
+                  >
+                    Close
+                  </motion.button>
+                )}
+              </AnimatePresence>
+
+              {!isPaddleExploded && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-green-400/20 pointer-events-none">
+                  <span className="text-[10px] text-green-400 font-black uppercase tracking-widest">DRAG TO ROTATE 360°</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div id="about" className="max-w-7xl mx-auto px-6 md:px-12 py-32 scroll-mt-20">
           {/* Profile Header (Moved above stepper) */}
@@ -381,7 +550,7 @@ export default function App() {
               </div>
               <div className="w-full h-[350px] md:h-[450px] relative rounded-3xl overflow-hidden bg-zinc-900/40 border border-zinc-800 backdrop-blur-sm hover:border-zinc-700 transition-colors shadow-2xl">
                 <CircularGallery
-                  bend={1}
+                  bend={isMobile ? 0 : 1}
                   textColor="#ffffff"
                   borderRadius={0.05}
                   scrollSpeed={2}
@@ -465,31 +634,32 @@ export default function App() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-zinc-900/40 border border-zinc-800 p-6 rounded-3xl backdrop-blur-sm">
                   <div className="space-y-3">
                     <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Pick a Date</label>
-                    <input
-                      type="date"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-5 py-4 bg-zinc-800/40 border border-zinc-800 text-white text-lg font-black rounded-2xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 transition-all outline-none"
-                    />
+                    {renderCalendar()}
                   </div>
 
                   <div className="space-y-3">
                     <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Slot</label>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {availableTimes.map((time) => (
-                        <button
-                          type="button"
-                          key={time}
-                          onClick={() => setSelectedTime(time)}
-                          className={`py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs ${selectedTime === time
-                            ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
-                            : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
-                            }`}
-                        >
-                          {time}
-                        </button>
-                      ))}
+                      {availableTimes.map((time) => {
+                        const durationToUse = sessionType.includes('Package') ? 1 : selectedDuration;
+                        const isBooked = selectedDate ? checkSlotBooked(selectedDate, time, durationToUse) : false;
+                        return (
+                          <button
+                            type="button"
+                            key={time}
+                            disabled={isBooked || !selectedDate}
+                            onClick={() => setSelectedTime(time)}
+                            className={`py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs ${isBooked
+                                ? 'bg-zinc-800/20 border border-zinc-800 text-zinc-600 opacity-50 cursor-not-allowed line-through'
+                                : selectedTime === time
+                                  ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
+                                  : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
+                              }`}
+                          >
+                            {time}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -588,18 +758,18 @@ export default function App() {
               </p>
             </div>
             <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl space-y-6">
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <input
                   type="email"
                   value={statusEmail}
                   onChange={(e) => setStatusEmail(e.target.value)}
                   placeholder="YOUR REGISTRATION EMAIL"
-                  className="flex-1 px-6 py-4 bg-black border border-zinc-800 rounded-2xl text-white font-bold outline-none focus:border-green-400 transition-colors"
+                  className="w-full sm:flex-1 px-6 py-4 bg-black border border-zinc-800 rounded-2xl text-white font-bold outline-none focus:border-green-400 transition-colors text-sm sm:text-base"
                 />
                 <button
                   onClick={checkStatus}
                   disabled={isChecking}
-                  className="px-8 bg-zinc-800 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-green-400 hover:text-black transition-all"
+                  className="w-full sm:w-auto px-8 py-4 bg-zinc-800 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-green-400 hover:text-black transition-all"
                 >
                   {isChecking ? '...' : 'CHECK'}
                 </button>
