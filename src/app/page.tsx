@@ -1,7 +1,7 @@
 "use client";
 
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
-import { Star, Award, Users, Mail, Phone, Zap, TrendingUp, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, Award, Users, Mail, Phone, Zap, TrendingUp, CheckCircle2, ChevronLeft, ChevronRight, User, Target, Flame, Crown, Briefcase, Calendar } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, addDays, isBefore, startOfDay } from 'date-fns';
 import Navbar from '@/components/Navbar';
@@ -97,9 +97,14 @@ export default function App() {
   };
 
   const sessionTypes = [
-    { name: 'Private & Group Session', duration: 'Hourly Rate', price: '$75/hr', rawPrice: 75, icon: Users },
-    { name: 'Competitive Training', duration: 'Hourly Rate', price: '$40/hr', rawPrice: 40, icon: Users },
-    { name: 'Beginner Package', duration: '4 sessions', price: '$260', rawPrice: 260, icon: TrendingUp },
+    { name: 'Solo Session (Taguig)', duration: '+ Ballboy Required', price: '₱850/hr', rawPrice: 850, icon: User },
+    { name: 'Solo Session (QC/Parañaque)', duration: '+ Ballboy Required', price: '₱1000/hr', rawPrice: 1000, icon: Target },
+    { name: '2-3 Pax Group', duration: '+ Ballboy Required', price: '₱500/hd/hr', rawPrice: 500, icon: Users },
+    { name: '4-5 Pax Group', duration: 'Free Ballboy (if 5 pax)', price: '₱400/hd/hr', rawPrice: 400, icon: Flame },
+    { name: '6-7 Pax Group', duration: 'Free Ballboy', price: '₱350/hd/hr', rawPrice: 350, icon: Star },
+    { name: '8-10 Pax Group', duration: 'Free Ballboy', price: '₱300/hd/hr', rawPrice: 300, icon: Crown },
+    { name: 'Corporate', duration: 'Hourly Rate', price: '₱2500/hr', rawPrice: 2500, icon: Briefcase },
+    { name: 'Saturday Group Session', duration: 'All In', price: '₱1000/hd', rawPrice: 1000, icon: Calendar },
   ];
 
   const stats = [
@@ -115,7 +120,7 @@ export default function App() {
     try {
       const mockCoachId = "60d5ecb862b80a1c1c8e8e8e";
       const startTime = new Date(`${selectedDate} ${selectedTime}`);
-      const isPackage = sessionType.includes('Package');
+      const isPackage = sessionType.includes('Package') || sessionType.includes('Saturday');
       const durationMs = isPackage ? (60 * 60 * 1000) : (selectedDuration * 60 * 60 * 1000);
       const endTime = new Date(startTime.getTime() + durationMs);
 
@@ -589,14 +594,14 @@ export default function App() {
             <Step>
               <div className="space-y-5 py-2">
                 <h3 className="text-2xl font-black text-white tracking-tighter text-center mb-4">1. CHOOSE YOUR PATH</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {sessionTypes.map((session) => {
                     const Icon = session.icon;
                     return (
                       <button
                         key={session.name}
                         onClick={() => setSessionType(session.name)}
-                        className={`group relative p-6 rounded-3xl transition-all duration-500 overflow-hidden text-left ${sessionType === session.name
+                        className={`group relative p-5 sm:p-6 rounded-3xl transition-all duration-500 overflow-hidden text-left flex flex-col h-full ${sessionType === session.name
                           ? 'bg-gradient-to-br from-green-400/20 to-green-400/5 border-2 border-green-400 shadow-[0_0_50px_rgba(74,222,128,0.15)]'
                           : 'bg-zinc-900/40 border border-zinc-800 hover:border-green-400/40 hover:bg-zinc-900/60'
                           }`}
@@ -609,8 +614,8 @@ export default function App() {
                         </div>
                         <h4 className={`text-lg font-black mb-1 tracking-tight transition-colors ${sessionType === session.name ? 'text-white' : 'text-zinc-200'}`}>{session.name}</h4>
                         <p className="text-zinc-500 font-bold text-[10px] mb-3 uppercase tracking-widest">{session.duration}</p>
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-3xl font-black text-green-400 tracking-tighter italic">{session.price}</span>
+                        <div className="flex items-baseline gap-1 mt-auto pt-2">
+                          <span className="text-xl sm:text-2xl lg:text-xl xl:text-2xl font-black text-green-400 tracking-tighter italic whitespace-nowrap">{session.price}</span>
                         </div>
 
                         {sessionType === session.name && (
@@ -637,60 +642,63 @@ export default function App() {
                     {renderCalendar()}
                   </div>
 
-                  <div className="space-y-3">
-                    <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Slot</label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {availableTimes.map((time) => {
-                        const durationToUse = sessionType.includes('Package') ? 1 : selectedDuration;
-                        const isBooked = selectedDate ? checkSlotBooked(selectedDate, time, durationToUse) : false;
-                        return (
-                          <button
-                            type="button"
-                            key={time}
-                            disabled={isBooked || !selectedDate}
-                            onClick={() => setSelectedTime(time)}
-                            className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs ${isBooked
-                                ? 'bg-zinc-800/20 border border-zinc-800 text-zinc-600 opacity-50 cursor-not-allowed line-through'
-                                : selectedTime === time
-                                  ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
-                                  : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
-                              }`}
-                          >
-                            {time}
-                          </button>
-                        );
-                      })}
+                  {/* Right Column: Slots + Duration */}
+                  <div className="flex flex-col h-full space-y-6">
+                    <div className="space-y-3">
+                      <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Slot</label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                        {availableTimes.map((time) => {
+                          const durationToUse = sessionType.includes('Package') || sessionType.includes('Saturday') ? 1 : selectedDuration;
+                          const isBooked = selectedDate ? checkSlotBooked(selectedDate, time, durationToUse) : false;
+                          return (
+                            <button
+                              type="button"
+                              key={time}
+                              disabled={isBooked || !selectedDate}
+                              onClick={() => setSelectedTime(time)}
+                              className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs ${isBooked
+                                  ? 'bg-zinc-800/20 border border-zinc-800 text-zinc-600 opacity-50 cursor-not-allowed line-through'
+                                  : selectedTime === time
+                                    ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
+                                    : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
+                                }`}
+                            >
+                              {time}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Duration Picker bg-zinc-900*/}
-                  <div className="md:col-span-2 space-y-3 pt-4 border-t border-zinc-800/50 mt-2">
-                    <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Duration {sessionType && !sessionType.includes('Package') && '(Hours)'}</label>
-                    {!sessionType ? (
-                      <div className="py-3 px-5 rounded-xl bg-zinc-800/20 border border-zinc-800 text-zinc-500 text-sm font-bold text-center">
-                        Select a Session Type to unlock duration formatting
-                      </div>
-                    ) : sessionType.includes('Package') ? (
-                      <div className="py-3 px-5 rounded-xl bg-zinc-800/20 border border-zinc-800 text-green-400/80 text-sm font-bold text-center border-dashed">
-                        Duration is pre-configured for the Package Path
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-                        {[1, 1.5, 2, 2.5, 3].map((dur) => (
-                          <button
-                            type="button"
-                            key={dur}
-                            onClick={() => setSelectedDuration(dur)}
-                            className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs md:text-sm ${selectedDuration === dur
-                              ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
-                              : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
-                              }`}
-                          >
-                            {dur} {dur === 1 ? 'hr' : 'hrs'}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                    {/* Duration Picker */}
+                    <div className="space-y-3 pt-6 border-t border-zinc-800/50 flex-1 flex flex-col">
+                      <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Duration {sessionType && !sessionType.includes('Package') && !sessionType.includes('Saturday') && '(Hours)'}</label>
+                      {!sessionType ? (
+                        <div className="py-3 px-5 rounded-xl bg-zinc-800/20 border border-zinc-800 text-zinc-500 text-sm font-bold text-center h-full flex items-center justify-center">
+                          Select a Session Type to unlock duration formatting
+                        </div>
+                      ) : sessionType.includes('Package') || sessionType.includes('Saturday') ? (
+                        <div className="py-3 px-5 rounded-xl bg-zinc-800/20 border border-zinc-800 text-green-400/80 text-sm font-bold text-center border-dashed h-full flex items-center justify-center">
+                          Duration is pre-configured for this option
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
+                          {[1, 1.5, 2, 2.5, 3].map((dur) => (
+                            <button
+                              type="button"
+                              key={dur}
+                              onClick={() => setSelectedDuration(dur)}
+                              className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs md:text-sm ${selectedDuration === dur
+                                ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
+                                : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
+                                }`}
+                            >
+                              {dur} {dur === 1 ? 'hr' : 'hrs'}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

@@ -668,6 +668,8 @@ export default function CircularGallery({
   scrollEase = 0.05
 }: CircularGalleryProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const appRef = useRef<App | null>(null);
+
   useEffect(() => {
     if (!containerRef.current) return;
     const app = new App(containerRef.current, {
@@ -679,9 +681,48 @@ export default function CircularGallery({
       scrollSpeed,
       scrollEase
     });
+    appRef.current = app;
     return () => {
       app.destroy();
+      appRef.current = null;
     };
   }, [items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase]);
-  return <div className="circular-gallery" ref={containerRef} />;
+
+  const handlePrev = () => {
+    if (appRef.current && appRef.current.medias[0]) {
+      const width = appRef.current.medias[0].width;
+      appRef.current.scroll.target -= width;
+    }
+  };
+
+  const handleNext = () => {
+    if (appRef.current && appRef.current.medias[0]) {
+      const width = appRef.current.medias[0].width;
+      appRef.current.scroll.target += width;
+    }
+  };
+
+  return (
+    <div className="relative w-full h-full">
+      <div className="circular-gallery" ref={containerRef} />
+      
+      {/* Mobile Navigation Controls */}
+      <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-2 sm:px-4 md:hidden pointer-events-none z-10">
+        <button 
+          onClick={handlePrev}
+          className="w-10 h-10 flex items-center justify-center bg-black/40 backdrop-blur-md rounded-full text-white/80 border border-white/10 pointer-events-auto active:scale-90 active:bg-green-400 active:text-black transition-all shadow-lg"
+          aria-label="Previous Image"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button 
+          onClick={handleNext}
+          className="w-10 h-10 flex items-center justify-center bg-black/40 backdrop-blur-md rounded-full text-white/80 border border-white/10 pointer-events-auto active:scale-90 active:bg-green-400 active:text-black transition-all shadow-lg"
+          aria-label="Next Image"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+  );
 }
