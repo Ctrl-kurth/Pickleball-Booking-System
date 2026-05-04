@@ -23,6 +23,21 @@ interface Booking {
   systemMessage?: string;
 }
 
+// Helper for cross-browser date parsing (especially Safari on iOS)
+const createDateFromStrings = (dateString: string, timeString: string): Date => {
+  if (!dateString || !timeString) return new Date(NaN);
+  const [year, month, day] = dateString.split('-').map(Number);
+  const [time, period] = timeString.split(' ');
+  const [hoursStr, minutesStr] = time.split(':');
+  let hours = Number(hoursStr);
+  const minutes = Number(minutesStr);
+  
+  if (period === 'PM' && hours !== 12) hours += 12;
+  else if (period === 'AM' && hours === 12) hours = 0;
+  
+  return new Date(year, month - 1, day, hours, minutes);
+};
+
 export default function App() {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
@@ -123,7 +138,8 @@ export default function App() {
 
   const checkSlotBooked = (dateString: string, timeString: string, durationInHours: number) => {
     if (!dateString) return false;
-    const start = new Date(`${dateString} ${timeString}`);
+    const start = createDateFromStrings(dateString, timeString);
+    if (isNaN(start.getTime())) return false;
     const end = new Date(start.getTime() + durationInHours * 60 * 60 * 1000);
 
     return bookedSlots.some(booking => {
@@ -161,7 +177,7 @@ export default function App() {
 
     try {
       const mockCoachId = "60d5ecb862b80a1c1c8e8e8e";
-      const startTime = new Date(`${selectedDate} ${selectedTime}`);
+      const startTime = createDateFromStrings(selectedDate, selectedTime);
       const isPackage = sessionType.includes('Package');
       const durationMs = isPackage ? (60 * 60 * 1000) : (selectedDuration * 60 * 60 * 1000);
       const endTime = new Date(startTime.getTime() + durationMs);
@@ -452,8 +468,8 @@ export default function App() {
   const isNextDisabled = Boolean(
     isSubmitting ||
     (currentStep === 1 && !sessionType) ||
-    (currentStep === 2 && (!selectedDate || !selectedTime)) ||
-    (currentStep === 3 && (!firstName || !lastName || !email))
+    (currentStep === 2 && (!sessionType || !selectedDate || !selectedTime)) ||
+    (currentStep === 3 && (!sessionType || !selectedDate || !selectedTime || !firstName || !lastName || !email))
   );
 
   return (
@@ -781,6 +797,7 @@ export default function App() {
             backButtonText="PREVIOUS"
             nextButtonText={buttonText}
             nextButtonProps={{ disabled: isNextDisabled }}
+            disableStepIndicators={true}
           >
             <Step>
               <div className="space-y-5 py-2">
@@ -886,6 +903,12 @@ export default function App() {
                       placeholder="CHAMP@PRO.COM"
                     />
                   </div>
+
+                  {(!sessionType || !selectedDate || !selectedTime) && (
+                    <div className="p-3 bg-red-400/10 border border-red-400/20 rounded-xl text-red-400 text-xs font-black uppercase tracking-widest text-center mt-2">
+                      ERROR: MISSING PREVIOUS STEP SELECTIONS
+                    </div>
+                  )}
 
                   {bookingStatus !== 'idle' && bookingStatus !== 'success' && (
                     <div className="p-3 bg-red-400/10 border border-red-400/20 rounded-xl text-red-400 text-xs font-black uppercase tracking-widest text-center mt-2">
