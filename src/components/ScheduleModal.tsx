@@ -105,13 +105,12 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
             }
           }}
           disabled={isPast || !isCurrentMonth}
-          className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-2xl text-sm font-black transition-all duration-300 ${
-            !isCurrentMonth ? 'text-zinc-800 pointer-events-none opacity-0' :
-            isPast ? 'text-zinc-700 pointer-events-none' :
-            isSelected ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 z-10 italic' :
-            isFullyBooked ? 'bg-red-500/5 text-red-500/50 hover:bg-red-500/10' :
-            'text-zinc-300 hover:bg-zinc-800/80 hover:text-white border border-transparent hover:border-zinc-700'
-          }`}
+          className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-2xl text-sm font-black transition-all duration-300 ${!isCurrentMonth ? 'text-zinc-800 pointer-events-none opacity-0' :
+              isPast ? 'text-zinc-700 pointer-events-none' :
+                isSelected ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 z-10 italic' :
+                  isFullyBooked ? 'bg-red-500/5 text-red-500/50 hover:bg-red-500/10' :
+                    'text-zinc-300 hover:bg-zinc-800/80 hover:text-white border border-transparent hover:border-zinc-700'
+            }`}
         >
           <span>{formattedDate}</span>
           {isCurrentMonth && !isPast && (
@@ -136,24 +135,24 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <motion.div 
+        <motion.div
           key="schedule-modal"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-6 md:p-12"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-6 md:p-12 overflow-hidden"
         >
-          <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-xl" 
-            onClick={onClose} 
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-xl"
+            onClick={onClose}
           />
-          
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95, y: 20 }} 
-            animate={{ opacity: 1, scale: 1, y: 0 }} 
-            exit={{ opacity: 0, scale: 0.95, y: 20 }} 
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
-            className="relative w-full max-w-5xl bg-black border border-zinc-800/80 rounded-2xl sm:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]"
+            className="relative w-full max-w-5xl bg-black border border-zinc-800/80 rounded-2xl sm:rounded-[2rem] shadow-2xl flex flex-col max-h-[95vh]"
           >
             {/* Subtle glow background */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-green-500/10 blur-[100px] rounded-full pointer-events-none" />
@@ -166,16 +165,16 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
                 </div>
                 <div>
                   <h2 className="text-xl sm:text-2xl md:text-4xl font-black text-white uppercase tracking-tighter italic leading-none mb-1">
-                    Marvin&apos;s Schedule
+                    Coach Marvin&apos;s Schedule
                   </h2>
                   <p className="text-[8px] sm:text-[10px] md:text-xs text-green-400 font-bold tracking-[0.2em] uppercase">
                     Real-Time Court Availability
                   </p>
                 </div>
               </div>
-              <button 
+              <button
                 type="button"
-                onClick={onClose} 
+                onClick={onClose}
                 className="relative z-50 cursor-pointer p-2 sm:p-3 bg-zinc-900 hover:bg-white text-zinc-400 hover:text-black rounded-full transition-all duration-300 shadow-xl"
               >
                 <X className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
@@ -183,10 +182,10 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
             </div>
 
             {/* Content */}
-            <div className="relative flex flex-col md:flex-row flex-1 overflow-hidden bg-zinc-950/50 custom-scrollbar">
+            <div className="relative flex flex-col md:flex-row flex-1 bg-zinc-950/50">
               {/* Calendar Side */}
-              <div className="w-full md:w-[55%] flex-shrink-0 p-4 sm:p-6 md:p-8 border-r border-zinc-800/80 overflow-y-auto custom-scrollbar">
-                <div className="flex justify-between items-center mb-4 sm:mb-8 bg-zinc-900/50 p-1.5 sm:p-2 rounded-xl sm:rounded-2xl border border-zinc-800">
+              <div className="w-full md:w-[55%] flex-shrink-0 p-4 sm:p-6 border-r border-zinc-800/80">
+                <div className="flex justify-between items-center mb-4 sm:mb-6 bg-zinc-900/50 p-1.5 sm:p-2 rounded-xl sm:rounded-2xl border border-zinc-800">
                   <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="min-h-[36px] min-w-[36px] sm:min-h-[44px] sm:min-w-[44px] flex items-center justify-center rounded-lg sm:rounded-xl hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors">
                     <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
@@ -206,20 +205,20 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
 
                 <div>{rows}</div>
 
-                <div className="mt-4 sm:mt-8 pt-4 sm:pt-6 border-t border-zinc-800/50 flex flex-col gap-6">
+                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-zinc-800/50 flex flex-col gap-6">
                   <div className="flex items-center justify-center gap-4 sm:gap-8 text-[8px] sm:text-[10px] font-black text-zinc-500 uppercase tracking-widest">
                     <div className="flex items-center gap-2 sm:gap-3">
-                      <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.5)]" /> 
+                      <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.5)]" />
                       Available
                     </div>
                     <div className="flex items-center gap-2 sm:gap-3">
-                      <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-red-500/50" /> 
+                      <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-red-500/50" />
                       Booked
                     </div>
                   </div>
-                  
-                  <a 
-                    href="#booking" 
+
+                  <a
+                    href="#booking"
                     onClick={onClose}
                     className="w-full flex items-center justify-center px-6 py-4 bg-green-400 text-black rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] hover:bg-green-300 transition-all shadow-[0_0_20px_rgba(74,222,128,0.2)] hover:shadow-[0_0_30px_rgba(74,222,128,0.4)] active:scale-95"
                   >
@@ -229,10 +228,10 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
               </div>
 
               {/* Slots Side Overlay on Mobile / Side-by-Side on Desktop */}
-              <div className={`absolute md:relative inset-0 md:inset-auto w-full md:w-[45%] md:flex-1 bg-zinc-950 md:bg-black/20 overflow-y-auto custom-scrollbar transition-transform duration-500 ease-in-out z-20 ${showMobileSlots ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
-                <div className="flex items-center gap-3 p-4 sm:p-6 md:p-8 sticky top-0 bg-zinc-950/95 backdrop-blur-xl z-10 border-b border-zinc-800/80">
-                  <button 
-                    onClick={() => setShowMobileSlots(false)} 
+              <div className={`absolute md:relative inset-0 md:inset-auto w-full md:w-[45%] md:flex-1 bg-zinc-950 md:bg-black/20 transition-transform duration-500 ease-in-out z-20 ${showMobileSlots ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
+                <div className="flex items-center gap-3 p-4 sm:p-6 sticky top-0 bg-zinc-950/95 backdrop-blur-xl z-10 border-b border-zinc-800/80">
+                  <button
+                    onClick={() => setShowMobileSlots(false)}
                     className="md:hidden flex items-center justify-center min-h-[36px] min-w-[36px] bg-zinc-900 rounded-full text-zinc-400 hover:text-white transition-colors"
                   >
                     <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -242,15 +241,15 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
                     {format(selectedDateObj, "EEEE, MMMM d")}
                   </h3>
                 </div>
-                
-                <div className="p-4 sm:p-6 md:p-8">
+
+                <div className="p-4 sm:p-6">
                   {isLoading ? (
                     <div className="flex flex-col items-center justify-center h-40 sm:h-64 space-y-4 sm:space-y-6">
                       <div className="w-8 h-8 sm:w-10 sm:h-10 border-4 border-green-400/20 border-t-green-400 rounded-full animate-spin" />
                       <p className="text-green-400 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] animate-pulse">Syncing Database...</p>
                     </div>
                   ) : (
-                    <motion.div 
+                    <motion.div
                       key={selectedDate}
                       initial="hidden"
                       animate="show"
@@ -258,27 +257,26 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
                         hidden: { opacity: 0 },
                         show: { opacity: 1, transition: { staggerChildren: 0.05 } }
                       }}
-                      className="space-y-2 sm:space-y-3"
+                      className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3"
                     >
                       {availableTimes.map((time) => {
                         const isBooked = checkSlotBooked(selectedDate, time, 1);
                         return (
-                          <motion.div 
+                          <motion.div
                             variants={{
                               hidden: { opacity: 0, x: 20 },
                               show: { opacity: 1, x: 0 }
                             }}
                             key={time}
-                            className={`group flex items-center justify-between p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border transition-all duration-300 ${
-                              isBooked 
-                              ? 'bg-red-500/5 border-red-500/10' 
-                              : 'bg-zinc-900/40 border-zinc-800 hover:border-green-400 hover:bg-green-400/5 hover:shadow-[0_0_30px_rgba(74,222,128,0.15)] cursor-default'
-                            }`}
+                            className={`group flex items-center justify-between p-3 rounded-xl sm:rounded-2xl border transition-all duration-300 ${isBooked
+                                ? 'bg-red-500/5 border-red-500/10'
+                                : 'bg-zinc-900/40 border-zinc-800 hover:border-green-400 hover:bg-green-400/5 hover:shadow-[0_0_30px_rgba(74,222,128,0.15)] cursor-default'
+                              }`}
                           >
                             <span className={`text-sm sm:text-base font-black tracking-tight ${isBooked ? 'text-zinc-600 line-through' : 'text-zinc-200 group-hover:text-white transition-colors'}`}>
                               {time}
                             </span>
-                            
+
                             {isBooked ? (
                               <span className="px-3 sm:px-4 py-1 sm:py-1.5 bg-red-500/10 text-red-500 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] rounded-full">
                                 Unavailable
@@ -296,8 +294,8 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
                 </div>
 
                 <div className="md:hidden sticky bottom-0 p-4 border-t border-zinc-800/80 bg-zinc-950/95 backdrop-blur-xl z-10">
-                  <a 
-                    href="#booking" 
+                  <a
+                    href="#booking"
                     onClick={onClose}
                     className="w-full flex items-center justify-center px-6 py-4 bg-green-400 text-black rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-green-300 transition-all shadow-[0_0_20px_rgba(74,222,128,0.2)] active:scale-95"
                   >

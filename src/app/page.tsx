@@ -1,6 +1,6 @@
 "use client";
 
-import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 import { Star, Award, Users, Mail, Phone, Zap, TrendingUp, CheckCircle2, ChevronLeft, ChevronRight, User, Target, Flame, Crown, Briefcase, Calendar } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, addDays, isBefore, startOfDay } from 'date-fns';
@@ -215,10 +215,10 @@ export default function App() {
               }
             }}
             className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-xl text-xs sm:text-sm font-bold transition-all ${!isCurrentMonth ? 'text-zinc-700 pointer-events-none opacity-0' :
-                isPast ? 'text-zinc-600 pointer-events-none' :
-                  isFullyBooked ? 'text-red-500/50 pointer-events-none bg-red-500/5' :
-                    isSelected ? 'bg-green-400 text-black shadow-[0_0_20px_rgba(74,222,128,0.3)] cursor-pointer' :
-                      'text-white hover:bg-zinc-800 cursor-pointer'
+              isPast ? 'text-zinc-600 pointer-events-none' :
+                isFullyBooked ? 'text-red-500/50 pointer-events-none bg-red-500/5' :
+                  isSelected ? 'bg-green-400 text-black shadow-[0_0_20px_rgba(74,222,128,0.3)] cursor-pointer' :
+                    'text-white hover:bg-zinc-800 cursor-pointer'
               }`}
           >
             <span>{formattedDate}</span>
@@ -318,117 +318,117 @@ export default function App() {
       {!isMobile && (
         <div className={`fixed inset-0 pointer-events-none group hidden lg:flex items-center justify-center z-[100]`}>
           <AnimatePresence>
-          {isPaddleExploded && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/70 backdrop-blur-2xl pointer-events-none"
-            />
-          )}
-        </AnimatePresence>
-
-        <motion.div
-          animate={isPaddleExploded ? {
-            x: 0,
-            y: 0,
-            width: "80vw",
-            height: "80vh",
-          } : {
-            x: "35vw",
-            y: "-5vh",
-            width: "550px",
-            height: "65vh",
-          }}
-          transition={{ type: "spring", stiffness: 100, damping: 20 }}
-          className="relative pointer-events-auto flex items-center justify-center"
-        >
-          {/* Circular Glow Background */}
-          <motion.div
-            animate={{
-              scale: isPaddleExploded ? 1.8 : 1,
-              opacity: isPaddleExploded ? 0.5 : 0.8,
-            }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-green-400/40 rounded-full blur-[120px] pointer-events-none"
-          />
-
-          {/* Technical Specs Panel */}
-          <AnimatePresence>
             {isPaddleExploded && (
               <motion.div
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 50 }}
-                className="absolute right-0 top-1/2 -translate-y-1/2 w-80 pr-10 hidden xl:flex flex-col gap-6"
-              >
-                {[
-                  { title: "Edge Guard", desc: "Industrial-grade bumper protecting the core from high-impact ground strikes." },
-                  { title: "Carbon Face", desc: "T700 Unidirectional Fiber for maximum grit and explosive spin mechanics." },
-                  { title: "Polymer Core", desc: "16mm Honeycomb structure engineered for vibration damping and power." },
-                  { title: "Ebony Grip", desc: "Premium walnut-finished scales for ergonomic torque and moisture control." },
-                ].map((spec, i) => (
-                  <motion.div
-                    key={spec.title}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 + (i * 0.1) }}
-                    className="border-r-2 border-green-400/30 pr-6 text-right"
-                  >
-                    <h4 className="text-green-400 font-black text-xs uppercase tracking-[0.3em] mb-2 italic">
-                      {spec.title}
-                    </h4>
-                    <p className="text-zinc-500 text-[11px] font-medium leading-relaxed italic">
-                      {spec.desc}
-                    </p>
-                  </motion.div>
-                ))}
-              </motion.div>
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-black/70 backdrop-blur-2xl pointer-events-none"
+              />
             )}
           </AnimatePresence>
 
-          <Paddle3D
-            isExploded={isPaddleExploded}
-            onExplodeChange={setIsPaddleExploded}
-          />
-          <AnimatePresence>
-            {isPaddleExploded && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                onClick={() => setIsPaddleExploded(false)}
-                className="absolute top-0 right-0 md:-top-10 md:-right-10 bg-white/10 hover:bg-white/20 text-white border border-white/20 min-h-[44px] px-8 py-4 rounded-full font-black uppercase tracking-widest transition-all z-50 backdrop-blur-md"
-              >
-                Close View
-              </motion.button>
-            )}
-          </AnimatePresence>
+          <motion.div
+            animate={isPaddleExploded ? {
+              x: 0,
+              y: 0,
+              width: "80vw",
+              height: "80vh",
+            } : {
+              x: "35vw",
+              y: "-5vh",
+              width: "550px",
+              height: "65vh",
+            }}
+            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+            className="relative pointer-events-auto flex items-center justify-center"
+          >
+            {/* Circular Glow Background */}
+            <motion.div
+              animate={{
+                scale: isPaddleExploded ? 1.8 : 1,
+                opacity: isPaddleExploded ? 0.5 : 0.8,
+              }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-green-400/40 rounded-full blur-[120px] pointer-events-none"
+            />
 
-          {!isPaddleExploded && (
-            <>
-              <div className="absolute top-1/4 right-32 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-green-400/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <span className="text-[10px] text-green-400 font-black uppercase tracking-widest">DRAG TO ROTATE 360°</span>
-              </div>
-              
-              <motion.div 
-                animate={{ 
-                  opacity: isScrolledPastHero ? 0 : 1,
-                  y: isScrolledPastHero ? 20 : 0
-                }}
-                transition={{ duration: 0.3 }}
-                className="absolute -bottom-[5%] left-1/2 -translate-x-1/2 flex flex-col items-center text-center gap-3 w-80 pointer-events-none"
-              >
-                <div className="inline-block px-4 py-1.5 bg-black/50 backdrop-blur-md border border-green-400/20 rounded-full text-green-400 text-[9px] font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(74,222,128,0.1)]">
-                  Coming Soon
+            {/* Technical Specs Panel */}
+            <AnimatePresence>
+              {isPaddleExploded && (
+                <motion.div
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 50 }}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 w-80 pr-10 hidden xl:flex flex-col gap-6"
+                >
+                  {[
+                    { title: "Edge Guard", desc: "Industrial-grade bumper protecting the core from high-impact ground strikes." },
+                    { title: "Carbon Face", desc: "T700 Unidirectional Fiber for maximum grit and explosive spin mechanics." },
+                    { title: "Polymer Core", desc: "16mm Honeycomb structure engineered for vibration damping and power." },
+                    { title: "Ebony Grip", desc: "Premium walnut-finished scales for ergonomic torque and moisture control." },
+                  ].map((spec, i) => (
+                    <motion.div
+                      key={spec.title}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 + (i * 0.1) }}
+                      className="border-r-2 border-green-400/30 pr-6 text-right"
+                    >
+                      <h4 className="text-green-400 font-black text-xs uppercase tracking-[0.3em] mb-2 italic">
+                        {spec.title}
+                      </h4>
+                      <p className="text-zinc-500 text-[11px] font-medium leading-relaxed italic">
+                        {spec.desc}
+                      </p>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <Paddle3D
+              isExploded={isPaddleExploded}
+              onExplodeChange={setIsPaddleExploded}
+            />
+            <AnimatePresence>
+              {isPaddleExploded && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  onClick={() => setIsPaddleExploded(false)}
+                  className="absolute top-0 right-0 md:-top-10 md:-right-10 bg-white/10 hover:bg-white/20 text-white border border-white/20 min-h-[44px] px-8 py-4 rounded-full font-black uppercase tracking-widest transition-all z-50 backdrop-blur-md"
+                >
+                  Close View
+                </motion.button>
+              )}
+            </AnimatePresence>
+
+            {!isPaddleExploded && (
+              <>
+                <div className="absolute top-1/4 right-32 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-green-400/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  <span className="text-[10px] text-green-400 font-black uppercase tracking-widest">DRAG TO ROTATE 360°</span>
                 </div>
-                <h2 className="text-2xl font-black text-white tracking-tighter italic uppercase drop-shadow-xl">Pro Series Paddle</h2>
-                <p className="text-zinc-400 font-medium text-[11px] leading-relaxed italic drop-shadow-lg">
-                  Coach Marvin is currently designing his signature pickleball paddle. Click or tap the paddle to explore the prototype in 3D.
-                </p>
-              </motion.div>
-            </>
-          )}
-        </motion.div>
+
+                <motion.div
+                  animate={{
+                    opacity: isScrolledPastHero ? 0 : 1,
+                    y: isScrolledPastHero ? 20 : 0
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute -bottom-[5%] left-1/2 -translate-x-1/2 flex flex-col items-center text-center gap-3 w-80 pointer-events-none"
+                >
+                  <div className="inline-block px-4 py-1.5 bg-black/50 backdrop-blur-md border border-green-400/20 rounded-full text-green-400 text-[9px] font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(74,222,128,0.1)]">
+                    Coming Soon
+                  </div>
+                  <h2 className="text-2xl font-black text-white tracking-tighter italic uppercase drop-shadow-xl">Pro Series Paddle</h2>
+                  <p className="text-zinc-400 font-medium text-[11px] leading-relaxed italic drop-shadow-lg">
+                    Coach Marvin is currently designing his signature pickleball paddle. Click or tap the paddle to explore the prototype in 3D.
+                  </p>
+                </motion.div>
+              </>
+            )}
+          </motion.div>
         </div>
       )}
 
@@ -509,16 +509,16 @@ export default function App() {
                 Coach Marvin is currently designing his signature pickleball paddle. Tap to explore the prototype in 3D.
               </p>
             </div>
-            
+
             <div className="w-full max-w-sm h-[450px] relative rounded-3xl bg-zinc-900/40 border border-zinc-800 flex flex-col items-center justify-center overflow-hidden shadow-2xl">
               {/* Circular Glow */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] bg-green-400/20 rounded-full blur-[80px] pointer-events-none" />
-              
+
               <Paddle3D
                 isExploded={isPaddleExploded}
                 onExplodeChange={setIsPaddleExploded}
               />
-              
+
               <AnimatePresence>
                 {isPaddleExploded && (
                   <motion.button
@@ -686,10 +686,10 @@ export default function App() {
                               disabled={isBooked || !selectedDate}
                               onClick={() => setSelectedTime(time)}
                               className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs ${isBooked
-                                  ? 'bg-zinc-800/20 border border-zinc-800 text-zinc-600 opacity-50 cursor-not-allowed line-through'
-                                  : selectedTime === time
-                                    ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
-                                    : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
+                                ? 'bg-zinc-800/20 border border-zinc-800 text-zinc-600 opacity-50 cursor-not-allowed line-through'
+                                : selectedTime === time
+                                  ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
+                                  : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
                                 }`}
                             >
                               {time}
@@ -746,7 +746,7 @@ export default function App() {
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full min-h-[44px] px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
+                        className="w-full min-h-[44px] px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
                         placeholder="JOHN"
                       />
                     </div>
@@ -757,7 +757,7 @@ export default function App() {
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                      className="w-full min-h-[44px] px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
+                        className="w-full min-h-[44px] px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
                         placeholder="DOE"
                       />
                     </div>
