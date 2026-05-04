@@ -1,7 +1,7 @@
 "use client";
 
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
-import { Star, Award, Users, Mail, Phone, Zap, TrendingUp, CheckCircle2, ChevronLeft, ChevronRight, User, Target, Flame, Crown, Briefcase, Calendar } from 'lucide-react';
+import { Star, Award, Users, Mail, Phone, Zap, TrendingUp, CheckCircle2, ChevronLeft, ChevronRight, User, Target, Flame, Crown, Briefcase, Calendar, Clock } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, addDays, isBefore, startOfDay } from 'date-fns';
 import Navbar from '@/components/Navbar';
@@ -42,6 +42,8 @@ export default function App() {
   const [bookedSlots, setBookedSlots] = useState<{ startTime: string, endTime: string }[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [isScrolledPastHero, setIsScrolledPastHero] = useState(false);
+  const [showMobileSlots, setShowMobileSlots] = useState(false);
+  const [showMobileDuration, setShowMobileDuration] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -212,6 +214,8 @@ export default function App() {
               if (!isPast && isCurrentMonth && !isFullyBooked) {
                 setSelectedDate(dayString);
                 setSelectedTime('');
+                setShowMobileSlots(true);
+                setShowMobileDuration(false);
               }
             }}
             className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-xl text-xs sm:text-sm font-bold transition-all ${!isCurrentMonth ? 'text-zinc-700 pointer-events-none opacity-0' :
@@ -228,7 +232,7 @@ export default function App() {
         day = addDays(day, 1);
       }
       rows.push(
-        <div className="grid grid-cols-7 gap-1 mb-1" key={day.toString()}>
+        <div className="grid grid-cols-7 gap-1 mb-1 sm:mb-2" key={day.toString()}>
           {days}
         </div>
       );
@@ -236,20 +240,20 @@ export default function App() {
     }
 
     return (
-      <div className="bg-zinc-800/40 border border-zinc-800 p-3 sm:p-5 rounded-2xl w-full">
-        <div className="flex justify-between items-center mb-6">
-          <button type="button" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="w-11 h-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors">
+      <div className="bg-zinc-800/40 border border-zinc-800 p-2 sm:p-5 rounded-2xl w-full">
+        <div className="flex justify-between items-center mb-3 sm:mb-6">
+          <button type="button" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="w-9 h-9 sm:w-11 sm:h-11 min-h-[36px] sm:min-h-[44px] min-w-[36px] sm:min-w-[44px] flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors">
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div className="text-white font-black uppercase tracking-widest text-sm">
             {format(currentMonth, "MMMM yyyy")}
           </div>
-          <button type="button" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="w-11 h-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors">
+          <button type="button" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="w-9 h-9 sm:w-11 sm:h-11 min-h-[36px] sm:min-h-[44px] min-w-[36px] sm:min-w-[44px] flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors">
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 mb-2">
+        <div className="grid grid-cols-7 gap-1 mb-1 sm:mb-2">
           {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
             <div key={d} className="text-center text-[10px] font-black text-zinc-500 uppercase tracking-widest">{d}</div>
           ))}
@@ -663,71 +667,117 @@ export default function App() {
 
             {/* STEP 2 */}
             <Step>
-              <div className="space-y-5 py-2 w-full max-w-4xl mx-auto">
+              <div className="space-y-5 py-2 w-full max-w-5xl mx-auto">
                 <h3 className="text-2xl font-black text-white tracking-tighter text-center mb-4">2. AVAILABILITY</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-zinc-900/40 border border-zinc-800 p-6 rounded-3xl backdrop-blur-sm">
-                  <div className="space-y-3">
-                    <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Pick a Date</label>
-                    {renderCalendar()}
+                <div className="relative flex flex-col md:flex-row overflow-hidden bg-black border border-zinc-800/80 rounded-2xl sm:rounded-[2rem] shadow-2xl md:min-h-[500px]">
+                  
+                  {/* Calendar Side */}
+                  <div className="w-full md:w-[55%] flex-shrink-0 p-3 sm:p-6 md:border-r border-zinc-800/80 bg-zinc-950/50 flex flex-col">
+                    <div className="flex-1">
+                      {renderCalendar()}
+                    </div>
                   </div>
 
-                  {/* Right Column: Slots + Duration */}
-                  <div className="flex flex-col h-full space-y-6">
-                    <div className="space-y-3">
-                      <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Slot</label>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                        {availableTimes.map((time) => {
-                          const durationToUse = sessionType.includes('Package') || sessionType.includes('Saturday') ? 1 : selectedDuration;
-                          const isBooked = selectedDate ? checkSlotBooked(selectedDate, time, durationToUse) : false;
-                          return (
-                            <button
-                              type="button"
-                              key={time}
-                              disabled={isBooked || !selectedDate}
-                              onClick={() => setSelectedTime(time)}
-                              className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs ${isBooked
-                                ? 'bg-zinc-800/20 border border-zinc-800 text-zinc-600 opacity-50 cursor-not-allowed line-through'
-                                : selectedTime === time
-                                  ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
-                                  : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
-                                }`}
-                            >
-                              {time}
-                            </button>
-                          );
-                        })}
+                  {/* Slots Side Overlay on Mobile / Side-by-Side on Desktop */}
+                  <div className={`absolute md:relative inset-0 md:inset-auto w-full md:w-[45%] md:flex-1 bg-zinc-950 md:bg-black/20 transition-transform duration-500 ease-in-out z-20 overflow-hidden md:overflow-visible ${showMobileSlots ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
+                    
+                    {/* SLOTS PANEL */}
+                    <div className={`absolute md:relative inset-0 md:inset-auto w-full h-full md:h-auto flex flex-col transition-transform duration-500 ${showMobileDuration ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+                      <div className="flex items-center gap-3 p-4 sm:p-6 sticky top-0 bg-zinc-950/95 md:bg-transparent backdrop-blur-xl z-10 border-b border-zinc-800/80 md:border-none md:pb-2">
+                        <button
+                          onClick={() => {
+                            setShowMobileSlots(false);
+                            setShowMobileDuration(false);
+                          }}
+                          className="md:hidden flex items-center justify-center min-h-[36px] min-w-[36px] bg-zinc-900 rounded-full text-zinc-400 hover:text-white transition-colors"
+                        >
+                          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                        </button>
+                        <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-tighter italic flex items-center gap-2 sm:gap-3">
+                          <Clock className="hidden sm:block w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+                          {selectedDate ? format(new Date(selectedDate), "EEEE, MMMM d") : "Select a Date"}
+                        </h3>
+                      </div>
+
+                      <div className="p-4 sm:p-6 md:pt-2 overflow-y-auto h-[calc(100%-80px)] md:h-auto">
+                        <div className="space-y-3">
+                          <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Slot</label>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-2 gap-2">
+                            {availableTimes.map((time) => {
+                              const durationToUse = sessionType.includes('Package') || sessionType.includes('Saturday') ? 1 : selectedDuration;
+                              const isBooked = selectedDate ? checkSlotBooked(selectedDate, time, durationToUse) : false;
+                              return (
+                                <button
+                                  type="button"
+                                  key={time}
+                                  disabled={isBooked || !selectedDate}
+                                  onClick={() => {
+                                    setSelectedTime(time);
+                                    setShowMobileDuration(true);
+                                  }}
+                                  className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs ${isBooked
+                                    ? 'bg-zinc-800/20 border border-zinc-800 text-zinc-600 opacity-50 cursor-not-allowed line-through'
+                                    : selectedTime === time
+                                      ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
+                                      : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
+                                    }`}
+                                >
+                                  {time}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Duration Picker */}
-                    <div className="space-y-3 pt-6 border-t border-zinc-800/50 flex-1 flex flex-col">
-                      <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Duration {sessionType && !sessionType.includes('Package') && !sessionType.includes('Saturday') && '(Hours)'}</label>
-                      {!sessionType ? (
-                        <div className="py-3 px-5 rounded-xl bg-zinc-800/20 border border-zinc-800 text-zinc-500 text-sm font-bold text-center h-full flex items-center justify-center">
-                          Select a Session Type to unlock duration formatting
+                    {/* DURATION PANEL */}
+                    <div className={`absolute md:relative inset-0 md:inset-auto w-full h-full md:h-auto flex flex-col transition-transform duration-500 bg-zinc-950 md:bg-transparent ${showMobileDuration ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
+                      <div className="flex md:hidden items-center gap-3 p-4 sm:p-6 sticky top-0 bg-zinc-950/95 backdrop-blur-xl z-10 border-b border-zinc-800/80">
+                        <button
+                          onClick={() => setShowMobileDuration(false)}
+                          className="md:hidden flex items-center justify-center min-h-[36px] min-w-[36px] bg-zinc-900 rounded-full text-zinc-400 hover:text-white transition-colors"
+                        >
+                          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                        </button>
+                        <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-tighter italic flex items-center gap-2 sm:gap-3">
+                          <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 hidden sm:block" />
+                          Duration for {selectedTime}
+                        </h3>
+                      </div>
+
+                      <div className="p-4 sm:p-6 md:pt-6 overflow-y-auto h-[calc(100%-80px)] md:h-auto border-t border-transparent md:border-zinc-800/50">
+                        <div className="space-y-3 pb-10 md:pb-0">
+                          <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Duration {sessionType && !sessionType.includes('Package') && !sessionType.includes('Saturday') && '(Hours)'}</label>
+                          {!sessionType ? (
+                            <div className="py-3 px-5 rounded-xl bg-zinc-800/20 border border-zinc-800 text-zinc-500 text-sm font-bold text-center flex items-center justify-center min-h-[100px]">
+                              Select a Session Type to unlock duration formatting
+                            </div>
+                          ) : sessionType.includes('Package') || sessionType.includes('Saturday') ? (
+                            <div className="py-3 px-5 rounded-xl bg-zinc-800/20 border border-zinc-800 text-green-400/80 text-sm font-bold text-center border-dashed flex items-center justify-center min-h-[100px]">
+                              Duration is pre-configured for this option
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2">
+                              {[1, 1.5, 2, 2.5, 3].map((dur) => (
+                                <button
+                                  type="button"
+                                  key={dur}
+                                  onClick={() => setSelectedDuration(dur)}
+                                  className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs md:text-sm ${selectedDuration === dur
+                                    ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
+                                    : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
+                                    }`}
+                                >
+                                  {dur} {dur === 1 ? 'hr' : 'hrs'}
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      ) : sessionType.includes('Package') || sessionType.includes('Saturday') ? (
-                        <div className="py-3 px-5 rounded-xl bg-zinc-800/20 border border-zinc-800 text-green-400/80 text-sm font-bold text-center border-dashed h-full flex items-center justify-center">
-                          Duration is pre-configured for this option
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
-                          {[1, 1.5, 2, 2.5, 3].map((dur) => (
-                            <button
-                              type="button"
-                              key={dur}
-                              onClick={() => setSelectedDuration(dur)}
-                              className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs md:text-sm ${selectedDuration === dur
-                                ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
-                                : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
-                                }`}
-                            >
-                              {dur} {dur === 1 ? 'hr' : 'hrs'}
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                      </div>
                     </div>
+
                   </div>
                 </div>
               </div>
