@@ -2,7 +2,7 @@
 
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 import { Star, Award, Users, Mail, Phone, Zap, TrendingUp, CheckCircle2, ChevronLeft, ChevronRight, User, Target, Flame, Crown, Briefcase, Calendar, Clock } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, addDays, isBefore, startOfDay } from 'date-fns';
 import Navbar from '@/components/Navbar';
 import Stepper, { Step } from '@/components/Stepper';
@@ -45,6 +45,29 @@ export default function App() {
   const [showMobileSlots, setShowMobileSlots] = useState(false);
   const [showMobileDuration, setShowMobileDuration] = useState(false);
   const [showMobileBookingModal, setShowMobileBookingModal] = useState(false);
+
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    const bookingSection = document.getElementById('booking');
+    if (bookingSection) {
+      setTimeout(() => {
+        const offset = window.innerWidth < 768 ? 80 : 120;
+        const bodyRect = document.body.getBoundingClientRect().top;
+        const elementRect = bookingSection.getBoundingClientRect().top;
+        const elementPosition = elementRect - bodyRect;
+        const offsetPosition = elementPosition - offset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }, 50);
+    }
+  }, [currentStep]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -752,6 +775,7 @@ export default function App() {
 
           <Stepper
             initialStep={1}
+            step={currentStep}
             onStepChange={(step) => setCurrentStep(step)}
             onFinalStepCompleted={handleBooking}
             backButtonText="PREVIOUS"
