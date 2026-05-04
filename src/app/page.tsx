@@ -208,7 +208,8 @@ export default function App() {
         const isFullyBooked = !isPast && isDayFullyBooked(dayString);
 
         days.push(
-          <div
+          <button
+            type="button"
             key={day.toString()}
             onClick={() => {
               if (!isPast && isCurrentMonth && !isFullyBooked) {
@@ -218,21 +219,24 @@ export default function App() {
                 setShowMobileDuration(false);
               }
             }}
-            className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-xl text-xs sm:text-sm font-bold transition-all ${!isCurrentMonth ? 'text-zinc-700 pointer-events-none opacity-0' :
-              isPast ? 'text-zinc-600 pointer-events-none' :
-                isFullyBooked ? 'text-red-500/50 pointer-events-none bg-red-500/5' :
-                  isSelected ? 'bg-green-400 text-black shadow-[0_0_20px_rgba(74,222,128,0.3)] cursor-pointer' :
-                    'text-white hover:bg-zinc-800 cursor-pointer'
+            disabled={isPast || !isCurrentMonth}
+            className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-2xl text-sm font-black transition-all duration-300 ${!isCurrentMonth ? 'text-zinc-800 pointer-events-none opacity-0' :
+                isPast ? 'text-zinc-700 pointer-events-none' :
+                  isSelected ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 z-10 italic' :
+                    isFullyBooked ? 'bg-red-500/5 text-red-500/50 hover:bg-red-500/10' :
+                      'text-zinc-300 hover:bg-zinc-800/80 hover:text-white border border-transparent hover:border-zinc-700'
               }`}
           >
             <span>{formattedDate}</span>
-            {isFullyBooked && <span className="absolute bottom-1 text-[6px] sm:text-[8px] uppercase tracking-widest text-red-500 font-black">Full</span>}
-          </div>
+            {isCurrentMonth && !isPast && (
+              <div className={`w-1.5 h-1.5 rounded-full mt-1.5 transition-colors ${isFullyBooked ? 'bg-red-500/50' : isSelected ? 'bg-black' : 'bg-green-400'}`} />
+            )}
+          </button>
         );
         day = addDays(day, 1);
       }
       rows.push(
-        <div className="grid grid-cols-7 gap-1 mb-1 sm:mb-2" key={day.toString()}>
+        <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2 sm:mb-4" key={day.toString()}>
           {days}
         </div>
       );
@@ -240,22 +244,22 @@ export default function App() {
     }
 
     return (
-      <div className="bg-zinc-800/40 border border-zinc-800 p-2 sm:p-5 rounded-2xl w-full">
-        <div className="flex justify-between items-center mb-3 sm:mb-6">
-          <button type="button" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="w-9 h-9 sm:w-11 sm:h-11 min-h-[36px] sm:min-h-[44px] min-w-[36px] sm:min-w-[44px] flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors">
-            <ChevronLeft className="w-5 h-5" />
+      <div className="w-full">
+        <div className="flex justify-between items-center mb-4 sm:mb-6 bg-zinc-900/50 p-1.5 sm:p-2 rounded-xl sm:rounded-2xl border border-zinc-800">
+          <button type="button" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="min-h-[36px] min-w-[36px] sm:min-h-[44px] sm:min-w-[44px] flex items-center justify-center rounded-lg sm:rounded-xl hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors">
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
-          <div className="text-white font-black uppercase tracking-widest text-sm">
+          <div className="text-white font-black uppercase tracking-widest text-xs sm:text-sm md:text-base italic">
             {format(currentMonth, "MMMM yyyy")}
           </div>
-          <button type="button" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="w-9 h-9 sm:w-11 sm:h-11 min-h-[36px] sm:min-h-[44px] min-w-[36px] sm:min-w-[44px] flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors">
-            <ChevronRight className="w-5 h-5" />
+          <button type="button" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="min-h-[36px] min-w-[36px] sm:min-h-[44px] sm:min-w-[44px] flex items-center justify-center rounded-lg sm:rounded-xl hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors">
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 mb-1 sm:mb-2">
-          {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
-            <div key={d} className="text-center text-[10px] font-black text-zinc-500 uppercase tracking-widest">{d}</div>
+        <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2 sm:mb-4">
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+            <div key={d} className="text-center text-[8px] sm:text-[10px] font-black text-zinc-500 uppercase tracking-widest">{d}</div>
           ))}
         </div>
 
@@ -672,7 +676,7 @@ export default function App() {
                 <div className="relative flex flex-col md:flex-row overflow-hidden bg-black border border-zinc-800/80 rounded-2xl sm:rounded-[2rem] shadow-2xl md:min-h-[500px]">
                   
                   {/* Calendar Side */}
-                  <div className="w-full md:w-[55%] flex-shrink-0 p-3 sm:p-6 md:border-r border-zinc-800/80 bg-zinc-950/50 flex flex-col">
+                  <div className="w-full md:w-[55%] flex-shrink-0 p-4 sm:p-6 md:border-r border-zinc-800/80 bg-zinc-950/50 flex flex-col">
                     <div className="flex-1">
                       {renderCalendar()}
                     </div>
