@@ -39,8 +39,8 @@ export default function Navbar() {
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-green-400/0 via-green-400/10 to-green-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
                 <Calendar className="w-4 h-4 text-green-400 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300" />
-                <span className="hidden sm:inline relative z-10">View Schedule</span>
-                <span className="sm:hidden relative z-10">Schedule</span>
+                <span className="hidden sm:inline relative z-10">Coach Marvin&apos;s Schedule</span>
+                <span className="sm:hidden relative z-10">Coach&apos;s Schedule</span>
               </button>
 
               <a href="#booking" className="flex items-center justify-center min-h-[44px] min-w-[44px] bg-green-400 text-black px-4 md:px-6 py-3 rounded-full font-black text-[10px] md:text-sm uppercase tracking-wider hover:bg-green-300 transition-all shadow-[0_0_20px_rgba(74,222,128,0.2)] hover:shadow-[0_0_30px_rgba(74,222,128,0.4)] active:scale-95">

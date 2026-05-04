@@ -44,6 +44,7 @@ export default function App() {
   const [isScrolledPastHero, setIsScrolledPastHero] = useState(false);
   const [showMobileSlots, setShowMobileSlots] = useState(false);
   const [showMobileDuration, setShowMobileDuration] = useState(false);
+  const [showMobileBookingModal, setShowMobileBookingModal] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,6 +61,12 @@ export default function App() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  useEffect(() => {
+    if (isMobile && currentStep === 2) {
+      setShowMobileBookingModal(true);
+    }
+  }, [currentStep, isMobile]);
 
   useEffect(() => {
     fetch('/api/bookings')
@@ -116,7 +123,7 @@ export default function App() {
     { name: '6-7 Pax Group', duration: 'Free Ballboy', price: '₱350/hd/hr', rawPrice: 350, icon: Star },
     { name: '8-10 Pax Group', duration: 'Free Ballboy', price: '₱300/hd/hr', rawPrice: 300, icon: Crown },
     { name: 'Corporate', duration: 'Hourly Rate', price: '₱2500/hr', rawPrice: 2500, icon: Briefcase },
-    { name: 'Saturday Group Session', duration: 'All In', price: '₱1000/hd', rawPrice: 1000, icon: Calendar },
+    { name: 'Saturday Group Session', duration: 'All In', price: '₱1000/hd/hr', rawPrice: 1000, icon: Calendar },
   ];
 
   const stats = [
@@ -132,7 +139,7 @@ export default function App() {
     try {
       const mockCoachId = "60d5ecb862b80a1c1c8e8e8e";
       const startTime = new Date(`${selectedDate} ${selectedTime}`);
-      const isPackage = sessionType.includes('Package') || sessionType.includes('Saturday');
+      const isPackage = sessionType.includes('Package');
       const durationMs = isPackage ? (60 * 60 * 1000) : (selectedDuration * 60 * 60 * 1000);
       const endTime = new Date(startTime.getTime() + durationMs);
 
@@ -267,6 +274,129 @@ export default function App() {
       </div>
     );
   };
+
+  const renderBookingUI = () => (
+    <div className={`relative flex flex-col md:flex-row overflow-hidden bg-black border border-zinc-800/80 rounded-2xl sm:rounded-[2rem] shadow-2xl md:min-h-[500px] ${isMobile ? 'h-full w-full rounded-none border-none shadow-none' : ''}`}>
+      {/* Calendar Side */}
+      <div className={`w-full md:w-[55%] flex-shrink-0 p-4 sm:p-6 md:border-r border-zinc-800/80 bg-zinc-950/50 flex flex-col ${isMobile ? 'h-full overflow-y-auto' : ''}`}>
+        <div className="flex-1">
+          {renderCalendar()}
+        </div>
+      </div>
+
+      {/* Slots Side Overlay on Mobile / Side-by-Side on Desktop */}
+      <div className={`absolute md:relative inset-0 md:inset-auto w-full md:w-[45%] md:flex-1 bg-zinc-950 md:bg-black/20 transition-transform duration-500 ease-in-out z-20 overflow-hidden md:overflow-visible ${showMobileSlots ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
+        
+        {/* SLOTS PANEL */}
+        <div className={`absolute md:relative inset-0 md:inset-auto w-full h-full md:h-auto flex flex-col transition-transform duration-500 ${showMobileDuration ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+          <div className="flex items-center gap-3 p-4 sm:p-6 sticky top-0 bg-zinc-950/95 md:bg-transparent backdrop-blur-xl z-10 border-b border-zinc-800/80 md:border-none md:pb-2">
+            <button
+              onClick={() => {
+                setShowMobileSlots(false);
+                setShowMobileDuration(false);
+              }}
+              className="md:hidden flex items-center justify-center min-h-[36px] min-w-[36px] bg-zinc-900 rounded-full text-zinc-400 hover:text-white transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-tighter italic flex items-center gap-2 sm:gap-3">
+              <Clock className="hidden sm:block w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+              {selectedDate ? format(new Date(selectedDate), "EEEE, MMMM d") : "Select a Date"}
+            </h3>
+          </div>
+
+          <div className="p-4 sm:p-6 md:pt-2 overflow-y-auto h-[calc(100%-80px)] md:h-auto">
+            <div className="space-y-3">
+              <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Slot</label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-2 gap-2">
+                {availableTimes.map((time) => {
+                  const durationToUse = sessionType.includes('Package') ? 1 : selectedDuration;
+                  const isBooked = selectedDate ? checkSlotBooked(selectedDate, time, durationToUse) : false;
+                  return (
+                    <button
+                      type="button"
+                      key={time}
+                      disabled={isBooked || !selectedDate}
+                      onClick={() => {
+                        setSelectedTime(time);
+                        setShowMobileDuration(true);
+                      }}
+                      className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs ${isBooked
+                        ? 'bg-zinc-800/20 border border-zinc-800 text-zinc-600 opacity-50 cursor-not-allowed line-through'
+                        : selectedTime === time
+                          ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
+                          : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
+                        }`}
+                    >
+                      {time}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* DURATION PANEL */}
+        <div className={`absolute md:relative inset-0 md:inset-auto w-full h-full md:h-auto flex flex-col transition-transform duration-500 bg-zinc-950 md:bg-transparent ${showMobileDuration ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
+          <div className="flex md:hidden items-center gap-3 p-4 sm:p-6 sticky top-0 bg-zinc-950/95 backdrop-blur-xl z-10 border-b border-zinc-800/80">
+            <button
+              onClick={() => setShowMobileDuration(false)}
+              className="md:hidden flex items-center justify-center min-h-[36px] min-w-[36px] bg-zinc-900 rounded-full text-zinc-400 hover:text-white transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-tighter italic flex items-center gap-2 sm:gap-3">
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 hidden sm:block" />
+              Duration for {selectedTime}
+            </h3>
+          </div>
+
+          <div className="p-4 sm:p-6 md:pt-6 overflow-y-auto h-[calc(100%-80px)] md:h-auto border-t border-transparent md:border-zinc-800/50">
+            <div className="space-y-3 pb-10 md:pb-0">
+              <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Duration {sessionType && !sessionType.includes('Package') && '(Hours)'}</label>
+              {!sessionType ? (
+                <div className="py-3 px-5 rounded-xl bg-zinc-800/20 border border-zinc-800 text-zinc-500 text-sm font-bold text-center flex items-center justify-center min-h-[100px]">
+                  Select a Session Type to unlock duration formatting
+                </div>
+              ) : sessionType.includes('Package') ? (
+                <div className="py-3 px-5 rounded-xl bg-zinc-800/20 border border-zinc-800 text-green-400/80 text-sm font-bold text-center border-dashed flex items-center justify-center min-h-[100px]">
+                  Duration is pre-configured for this option
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2">
+                  {[1, 1.5, 2, 2.5, 3].map((dur) => (
+                    <button
+                      type="button"
+                      key={dur}
+                      onClick={() => setSelectedDuration(dur)}
+                      className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs md:text-sm ${selectedDuration === dur
+                        ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
+                        : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
+                        }`}
+                    >
+                      {dur} {dur === 1 ? 'hr' : 'hrs'}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {isMobile && selectedTime && (
+                <div className="mt-8 pt-4">
+                  <button onClick={() => {
+                    setShowMobileBookingModal(false);
+                    setCurrentStep(3);
+                  }} className="w-full bg-green-400 text-black py-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-[0_0_30px_rgba(74,222,128,0.3)]">
+                    Continue to Details
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
 
   if (bookingStatus === 'success') {
     return (
@@ -673,117 +803,21 @@ export default function App() {
             <Step>
               <div className="space-y-5 py-2 w-full max-w-5xl mx-auto">
                 <h3 className="text-2xl font-black text-white tracking-tighter text-center mb-4">2. AVAILABILITY</h3>
-                <div className="relative flex flex-col md:flex-row overflow-hidden bg-black border border-zinc-800/80 rounded-2xl sm:rounded-[2rem] shadow-2xl md:min-h-[500px]">
-                  
-                  {/* Calendar Side */}
-                  <div className="w-full md:w-[55%] flex-shrink-0 p-4 sm:p-6 md:border-r border-zinc-800/80 bg-zinc-950/50 flex flex-col">
-                    <div className="flex-1">
-                      {renderCalendar()}
-                    </div>
+                {!isMobile ? renderBookingUI() : (
+                  <div className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 text-center space-y-4">
+                    {selectedDate && selectedTime ? (
+                      <>
+                        <div className="text-green-400 font-black text-2xl tracking-tighter italic uppercase">{format(new Date(selectedDate), "MMM d, yyyy")} <br/> {selectedTime}</div>
+                        <div className="text-zinc-400 font-bold text-sm">Duration: {selectedDuration} hr{selectedDuration > 1 ? 's' : ''}</div>
+                      </>
+                    ) : (
+                      <div className="text-zinc-500 font-bold italic py-4">No schedule selected yet.</div>
+                    )}
+                    <button onClick={() => setShowMobileBookingModal(true)} className="bg-zinc-800 hover:bg-zinc-700 text-white px-6 py-4 rounded-xl font-black uppercase tracking-widest text-sm w-full transition-colors border border-zinc-700">
+                      {selectedDate ? "Change Schedule" : "Open Calendar"}
+                    </button>
                   </div>
-
-                  {/* Slots Side Overlay on Mobile / Side-by-Side on Desktop */}
-                  <div className={`absolute md:relative inset-0 md:inset-auto w-full md:w-[45%] md:flex-1 bg-zinc-950 md:bg-black/20 transition-transform duration-500 ease-in-out z-20 overflow-hidden md:overflow-visible ${showMobileSlots ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
-                    
-                    {/* SLOTS PANEL */}
-                    <div className={`absolute md:relative inset-0 md:inset-auto w-full h-full md:h-auto flex flex-col transition-transform duration-500 ${showMobileDuration ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-                      <div className="flex items-center gap-3 p-4 sm:p-6 sticky top-0 bg-zinc-950/95 md:bg-transparent backdrop-blur-xl z-10 border-b border-zinc-800/80 md:border-none md:pb-2">
-                        <button
-                          onClick={() => {
-                            setShowMobileSlots(false);
-                            setShowMobileDuration(false);
-                          }}
-                          className="md:hidden flex items-center justify-center min-h-[36px] min-w-[36px] bg-zinc-900 rounded-full text-zinc-400 hover:text-white transition-colors"
-                        >
-                          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </button>
-                        <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-tighter italic flex items-center gap-2 sm:gap-3">
-                          <Clock className="hidden sm:block w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
-                          {selectedDate ? format(new Date(selectedDate), "EEEE, MMMM d") : "Select a Date"}
-                        </h3>
-                      </div>
-
-                      <div className="p-4 sm:p-6 md:pt-2 overflow-y-auto h-[calc(100%-80px)] md:h-auto">
-                        <div className="space-y-3">
-                          <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Slot</label>
-                          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-2 gap-2">
-                            {availableTimes.map((time) => {
-                              const durationToUse = sessionType.includes('Package') || sessionType.includes('Saturday') ? 1 : selectedDuration;
-                              const isBooked = selectedDate ? checkSlotBooked(selectedDate, time, durationToUse) : false;
-                              return (
-                                <button
-                                  type="button"
-                                  key={time}
-                                  disabled={isBooked || !selectedDate}
-                                  onClick={() => {
-                                    setSelectedTime(time);
-                                    setShowMobileDuration(true);
-                                  }}
-                                  className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs ${isBooked
-                                    ? 'bg-zinc-800/20 border border-zinc-800 text-zinc-600 opacity-50 cursor-not-allowed line-through'
-                                    : selectedTime === time
-                                      ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
-                                      : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
-                                    }`}
-                                >
-                                  {time}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* DURATION PANEL */}
-                    <div className={`absolute md:relative inset-0 md:inset-auto w-full h-full md:h-auto flex flex-col transition-transform duration-500 bg-zinc-950 md:bg-transparent ${showMobileDuration ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
-                      <div className="flex md:hidden items-center gap-3 p-4 sm:p-6 sticky top-0 bg-zinc-950/95 backdrop-blur-xl z-10 border-b border-zinc-800/80">
-                        <button
-                          onClick={() => setShowMobileDuration(false)}
-                          className="md:hidden flex items-center justify-center min-h-[36px] min-w-[36px] bg-zinc-900 rounded-full text-zinc-400 hover:text-white transition-colors"
-                        >
-                          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </button>
-                        <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-tighter italic flex items-center gap-2 sm:gap-3">
-                          <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 hidden sm:block" />
-                          Duration for {selectedTime}
-                        </h3>
-                      </div>
-
-                      <div className="p-4 sm:p-6 md:pt-6 overflow-y-auto h-[calc(100%-80px)] md:h-auto border-t border-transparent md:border-zinc-800/50">
-                        <div className="space-y-3 pb-10 md:pb-0">
-                          <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Duration {sessionType && !sessionType.includes('Package') && !sessionType.includes('Saturday') && '(Hours)'}</label>
-                          {!sessionType ? (
-                            <div className="py-3 px-5 rounded-xl bg-zinc-800/20 border border-zinc-800 text-zinc-500 text-sm font-bold text-center flex items-center justify-center min-h-[100px]">
-                              Select a Session Type to unlock duration formatting
-                            </div>
-                          ) : sessionType.includes('Package') || sessionType.includes('Saturday') ? (
-                            <div className="py-3 px-5 rounded-xl bg-zinc-800/20 border border-zinc-800 text-green-400/80 text-sm font-bold text-center border-dashed flex items-center justify-center min-h-[100px]">
-                              Duration is pre-configured for this option
-                            </div>
-                          ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2">
-                              {[1, 1.5, 2, 2.5, 3].map((dur) => (
-                                <button
-                                  type="button"
-                                  key={dur}
-                                  onClick={() => setSelectedDuration(dur)}
-                                  className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs md:text-sm ${selectedDuration === dur
-                                    ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
-                                    : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
-                                    }`}
-                                >
-                                  {dur} {dur === 1 ? 'hr' : 'hrs'}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
+                )}
               </div>
             </Step>
 
@@ -915,6 +949,39 @@ export default function App() {
           </div>
         </footer>
       </div>
+
+      {/* MOBILE BOOKING MODAL */}
+      <AnimatePresence>
+        {isMobile && showMobileBookingModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              onClick={() => setShowMobileBookingModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative w-[95%] max-w-lg max-h-[90vh] bg-black border border-zinc-800 rounded-[2rem] shadow-2xl flex flex-col overflow-hidden"
+            >
+              <div className="flex justify-between items-center p-4 sm:p-6 border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50">
+                <h3 className="text-lg font-black text-white uppercase italic tracking-tighter">Select Schedule</h3>
+                <button onClick={() => setShowMobileBookingModal(false)} className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-400 hover:text-white transition-colors">
+                  <span className="font-black text-lg">✕</span>
+                </button>
+              </div>
+              <div className="flex-1 overflow-hidden relative flex flex-col">
+                 {renderBookingUI()}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
