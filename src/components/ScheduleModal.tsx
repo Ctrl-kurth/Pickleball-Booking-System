@@ -152,13 +152,13 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
-            className="relative w-full max-w-5xl bg-black border border-zinc-800/80 rounded-2xl sm:rounded-[2rem] shadow-2xl flex flex-col max-h-[95vh]"
+            className="relative w-full max-w-5xl bg-black border border-zinc-800/80 rounded-2xl sm:rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh]"
           >
             {/* Subtle glow background */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-green-500/10 blur-[100px] rounded-full pointer-events-none" />
 
             {/* Header */}
-            <div className="relative flex items-center justify-between p-4 sm:p-6 md:p-8 border-b border-zinc-800/80 bg-zinc-950/50">
+            <div className="relative flex items-center justify-between p-4 sm:p-6 border-b border-zinc-800/80 bg-zinc-950/50">
               <div className="flex items-center gap-3 sm:gap-4">
                 <div className="p-2 sm:p-3 md:p-4 bg-green-400/10 rounded-xl sm:rounded-2xl border border-green-400/20 shadow-[0_0_30px_rgba(74,222,128,0.15)]">
                   <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-green-400" />
