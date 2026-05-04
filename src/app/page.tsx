@@ -454,6 +454,11 @@ export default function App() {
               setSessionType('');
               setSelectedDate('');
               setSelectedTime('');
+              setSelectedDuration(1);
+              setFirstName('');
+              setLastName('');
+              setEmail('');
+              setCurrentStep(1);
             }}
             className="w-full bg-green-400 text-black py-5 min-h-[44px] rounded-2xl font-black uppercase tracking-widest hover:bg-green-300 transition-all hover:scale-[1.02]"
           >
@@ -866,10 +871,10 @@ export default function App() {
             <Step>
               <div className="space-y-4 py-2 w-full max-w-2xl mx-auto">
                 <h3 className="text-2xl font-black text-white tracking-tighter text-center mb-4">3. SECURE YOUR SPOT</h3>
-                <div className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 backdrop-blur-sm shadow-2xl space-y-4">
+                <form autoComplete="off" onSubmit={(e) => e.preventDefault()} className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 backdrop-blur-sm shadow-2xl space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">First Name</label>
+                      <label htmlFor="bk_fn" className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">First Name</label>
                       <input
                         required
                         type="text"
@@ -877,10 +882,13 @@ export default function App() {
                         onChange={(e) => setFirstName(e.target.value)}
                         className="w-full min-h-[44px] px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
                         placeholder="JOHN"
+                        id="bk_fn"
+                        name="bk_fn"
+                        autoComplete="off"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Last Name</label>
+                      <label htmlFor="bk_ln" className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Last Name</label>
                       <input
                         required
                         type="text"
@@ -888,19 +896,26 @@ export default function App() {
                         onChange={(e) => setLastName(e.target.value)}
                         className="w-full min-h-[44px] px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
                         placeholder="DOE"
+                        id="bk_ln"
+                        name="bk_ln"
+                        autoComplete="off"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Email</label>
+                    <label htmlFor="bk_em" className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Email</label>
                     <input
                       required
-                      type="email"
+                      type="text"
+                      inputMode="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full min-h-[44px] px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
                       placeholder="CHAMP@PRO.COM"
+                      id="bk_em"
+                      name="bk_em"
+                      autoComplete="off"
                     />
                   </div>
 
@@ -915,7 +930,7 @@ export default function App() {
                       ERROR: {bookingStatus}
                     </div>
                   )}
-                </div>
+                </form>
               </div>
             </Step>
           </Stepper>
@@ -929,16 +944,21 @@ export default function App() {
                 Enter your registration email to view your booking status and any system messages from Coach Marvin.
               </p>
             </div>
-            <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl space-y-6">
+            <form autoComplete="off" onSubmit={(e) => { e.preventDefault(); checkStatus(); }} className="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl space-y-6">
               <div className="flex flex-col sm:flex-row gap-4">
                 <input
-                  type="email"
+                  type="text"
+                  inputMode="email"
                   value={statusEmail}
                   onChange={(e) => setStatusEmail(e.target.value)}
                   placeholder="YOUR REGISTRATION EMAIL"
                   className="w-full sm:flex-1 min-h-[44px] px-6 py-4 bg-black border border-zinc-800 rounded-2xl text-white font-bold outline-none focus:border-green-400 transition-colors text-sm sm:text-base"
+                  id="trk_search"
+                  name="trk_search"
+                  autoComplete="off"
                 />
                 <button
+                  type="button"
                   onClick={checkStatus}
                   disabled={isChecking}
                   className="w-full sm:w-auto min-h-[44px] px-8 py-4 bg-zinc-800 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-green-400 hover:text-black transition-all"
@@ -978,7 +998,7 @@ export default function App() {
                   )}
                 </div>
               )}
-            </div>
+            </form>
           </div>
         </div>
 
