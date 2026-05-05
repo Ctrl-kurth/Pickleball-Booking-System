@@ -1,7 +1,7 @@
 "use client";
 
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
-import { Zap, ChevronLeft, ChevronRight, Calendar, Clock } from 'lucide-react';
+import { Zap, CheckCircle2, ChevronLeft, ChevronRight, Calendar, Clock } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, addDays, isBefore, startOfDay, getDay } from 'date-fns';
 import Navbar from '@/components/Navbar';
