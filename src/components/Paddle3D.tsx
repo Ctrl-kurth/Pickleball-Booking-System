@@ -72,12 +72,19 @@ function ExplodablePaddle({
     return () => { document.body.style.cursor = "auto"; };
   }, [hovered]);
 
-  // Drive rotation
+  // Cache scrollY in a ref — updated by a passive listener, never read from DOM in the RAF loop
+  const scrollYRef = useRef(0);
+  useEffect(() => {
+    const onScroll = () => { scrollYRef.current = window.scrollY; };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Drive rotation — only reads the cached ref, zero DOM access per frame
   const targetRotation = useRef(0);
   useFrame(() => {
     if (group.current) {
-      const scrollY = typeof window !== 'undefined' ? window.scrollY : 0;
-      targetRotation.current = scrollY * 0.0015;
+      targetRotation.current = scrollYRef.current * 0.0015;
       group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, targetRotation.current, 0.05);
     }
   });

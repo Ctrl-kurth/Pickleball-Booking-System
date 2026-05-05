@@ -341,7 +341,10 @@ class Media {
     }
 
     this.speed = scroll.current - scroll.last;
-    this.program.uniforms.uTime.value += 0.04;
+    // Only drive the time-based warp when actively scrolling — saves GPU when idle
+    if (Math.abs(this.speed) > 0.001) {
+      this.program.uniforms.uTime.value += 0.04;
+    }
     this.program.uniforms.uSpeed.value = this.speed;
 
     const planeOffset = this.plane.scale.x / 2;
@@ -408,6 +411,7 @@ class App {
   screen!: { width: number; height: number };
   viewport!: { width: number; height: number };
   raf: number = 0;
+  isPaused: boolean = false;
 
   boundOnResize!: () => void;
   boundOnWheel!: (e: Event) => void;
@@ -468,8 +472,8 @@ class App {
 
   createGeometry() {
     this.planeGeometry = new Plane(this.gl, {
-      heightSegments: 50,
-      widthSegments: 100
+      heightSegments: 15,
+      widthSegments: 30
     });
   }
 
@@ -604,13 +608,21 @@ class App {
   }
 
   update() {
-    this.scroll.current = lerp(this.scroll.current, this.scroll.target, this.scroll.ease);
-    const direction = this.scroll.current > this.scroll.last ? 'right' : 'left';
-    if (this.medias) {
-      this.medias.forEach(media => media.update(this.scroll, direction));
+    if (this.isPaused) {
+      this.raf = window.requestAnimationFrame(this.update.bind(this));
+      return;
     }
-    this.renderer.render({ scene: this.scene, camera: this.camera });
-    this.scroll.last = this.scroll.current;
+    this.scroll.current = lerp(this.scroll.current, this.scroll.target, this.scroll.ease);
+    const delta = Math.abs(this.scroll.current - this.scroll.last);
+    const direction = this.scroll.current > this.scroll.last ? 'right' : 'left';
+    // Only re-render when there is meaningful movement — skip the GPU draw when settled
+    if (delta > 0.0005) {
+      if (this.medias) {
+        this.medias.forEach(media => media.update(this.scroll, direction));
+      }
+      this.renderer.render({ scene: this.scene, camera: this.camera });
+      this.scroll.last = this.scroll.current;
+    }
     this.raf = window.requestAnimationFrame(this.update.bind(this));
   }
 
@@ -629,6 +641,10 @@ class App {
     window.addEventListener('touchstart', this.boundOnTouchDown);
     window.addEventListener('touchmove', this.boundOnTouchMove);
     window.addEventListener('touchend', this.boundOnTouchUp);
+    // Pause RAF when tab is hidden to save GPU/battery
+    document.addEventListener('visibilitychange', () => {
+      this.isPaused = document.hidden;
+    });
   }
 
   destroy() {

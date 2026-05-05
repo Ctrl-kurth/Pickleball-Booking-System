@@ -2,7 +2,7 @@
 
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 import { Zap, CheckCircle2, ChevronLeft, ChevronRight, Calendar, Clock } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, addDays, isBefore, startOfDay, getDay } from 'date-fns';
 import Navbar from '@/components/Navbar';
 import Stepper, { Step } from '@/components/Stepper';
@@ -38,6 +38,124 @@ const createDateFromStrings = (dateString: string, timeString: string): Date => 
   return new Date(year, month - 1, day, hours, minutes);
 };
 
+// Static data — hoisted outside component to prevent recreation on every render
+const AVAILABLE_TIMES = [
+  '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM',
+  '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'
+];
+
+const SESSION_TYPES = [
+  { name: 'Solo Session (Taguig)', duration: '+ Ballboy Required', price: '₱850/hr', priceAmount: '₱850', priceDetails: ['Per Hour'], rawPrice: 850 },
+  { name: 'Solo Session (QC/Parañaque)', duration: '+ Ballboy Required', price: '₱1000/hr', priceAmount: '₱1000', priceDetails: ['Per Hour'], rawPrice: 1000 },
+  { name: '2-3 Pax Group', duration: '+ Ballboy Required', price: '₱500/hd/hr', priceAmount: '₱500', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 500 },
+  { name: '4-5 Pax Group', duration: 'Free Ballboy (if 5 pax)', price: '₱400/hd/hr', priceAmount: '₱400', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 400 },
+  { name: '6-7 Pax Group', duration: 'Free Ballboy', price: '₱350/hd/hr', priceAmount: '₱350', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 350 },
+  { name: '8-10 Pax Group', duration: 'Free Ballboy', price: '₱300/hd/hr', priceAmount: '₱300', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 300 },
+  { name: 'Corporate', duration: 'Hourly Rate', price: '₱2500/hr', priceAmount: '₱2500', priceDetails: ['Per Hour'], rawPrice: 2500 },
+  { name: 'Saturday Group Session', duration: '2 Hours • All In', price: '₱1000/hd/2hr', priceAmount: '₱1000', priceDetails: ['Per Head', 'Per 2 Hours'], rawPrice: 1000 },
+];
+
+// Static stats — hoisted to module level to prevent recreation on every render
+const STATS = [
+  { label: 'Students Coached', value: '300+' },
+  { label: 'Development Focus', value: 'Youth' },
+  { label: 'Training Style', value: 'Game-Based' },
+];
+
+// ─── Isolated component: typing only re-renders this, never the whole page ───
+function TrackStatus() {
+  const [statusEmail, setStatusEmail] = useState('');
+  const [checkingResult, setCheckingResult] = useState<Booking[] | null>(null);
+  const [isChecking, setIsChecking] = useState(false);
+
+  const checkStatus = async () => {
+    if (!statusEmail) return;
+    setIsChecking(true);
+    try {
+      const res = await fetch('/api/bookings');
+      if (res.ok) {
+        const allBookings = await res.json();
+        const userBookings = allBookings.filter(
+          (b: Booking) => b.clientEmail.toLowerCase() === statusEmail.toLowerCase()
+        );
+        setCheckingResult(userBookings);
+      }
+    } catch (error) {
+      console.error('Checking failed', error);
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-6 md:px-12 py-32 border-t border-zinc-900">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+        <div>
+          <h2 className="text-5xl font-black text-white tracking-tighter mb-6 uppercase italic">Track Your Status</h2>
+          <p className="text-zinc-500 text-lg font-medium leading-relaxed max-w-md">
+            Enter your registration email to view your booking status and any system messages from Coach Marvin.
+          </p>
+        </div>
+        <form autoComplete="off" onSubmit={(e) => { e.preventDefault(); checkStatus(); }} className="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl space-y-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <input
+              type="text"
+              inputMode="email"
+              value={statusEmail}
+              onChange={(e) => setStatusEmail(e.target.value)}
+              placeholder="YOUR REGISTRATION EMAIL"
+              className="w-full sm:flex-1 min-h-[44px] px-6 py-4 bg-black border border-zinc-800 rounded-2xl text-white font-bold outline-none focus:border-green-400 transition-colors text-sm sm:text-base"
+              id="trk_search"
+              name="trk_search"
+              autoComplete="off"
+            />
+            <button
+              type="button"
+              onClick={checkStatus}
+              disabled={isChecking}
+              className="w-full sm:w-auto min-h-[44px] px-8 py-4 bg-zinc-800 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-green-400 hover:text-black transition-all"
+            >
+              {isChecking ? '...' : 'CHECK'}
+            </button>
+          </div>
+
+          {checkingResult && (
+            <div className="space-y-4 pt-6">
+              {checkingResult.length === 0 ? (
+                <p className="text-zinc-500 text-center font-bold uppercase tracking-widest text-xs">No active bookings found for this email.</p>
+              ) : (
+                checkingResult.map((b) => (
+                  <div key={b._id} className="p-6 bg-black rounded-2xl border border-zinc-800">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <div className="text-xs font-black text-zinc-600 uppercase tracking-widest">Status</div>
+                        <div className={`text-sm font-black uppercase ${b.status === 'confirmed' ? 'text-green-400' : 'text-yellow-400'}`}>
+                          {b.status}
+                        </div>
+                      </div>
+                      <div className="text-right text-xs font-black text-zinc-500 uppercase">
+                        {new Date(b.startTime).toLocaleDateString()}
+                      </div>
+                    </div>
+
+                    {b.systemMessage && (
+                      <div className="mt-4 p-4 bg-green-400/5 border border-green-400/10 rounded-xl">
+                        <p className="text-green-400/90 text-sm italic font-medium">
+                          &quot;{b.systemMessage}&quot;
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
@@ -48,9 +166,6 @@ export default function App() {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingStatus, setBookingStatus] = useState<'idle' | 'success' | string>('idle');
-  const [statusEmail, setStatusEmail] = useState('');
-  const [checkingResult, setCheckingResult] = useState<Booking[] | null>(null);
-  const [isChecking, setIsChecking] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [isPaddleExploded, setIsPaddleExploded] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -85,19 +200,30 @@ export default function App() {
   }, [currentStep]);
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setIsScrolledPastHero(window.scrollY > 300);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          setIsScrolledPastHero(window.scrollY > 300);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Initial check
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    let timer: ReturnType<typeof setTimeout>;
+    const checkMobile = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => setIsMobile(window.innerWidth < 1024), 150);
+    };
+    setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => { window.removeEventListener('resize', checkMobile); clearTimeout(timer); };
   }, []);
 
   useEffect(() => {
@@ -131,45 +257,26 @@ export default function App() {
     return () => { document.body.style.overflow = 'auto'; };
   }, [isPaddleExploded]);
 
-  const availableTimes = [
-    '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM',
-    '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'
-  ];
+  const availableTimes = AVAILABLE_TIMES;
 
-  const checkSlotBooked = (dateString: string, timeString: string, durationInHours: number) => {
+  const checkSlotBooked = useCallback((dateString: string, timeString: string, durationInHours: number) => {
     if (!dateString) return false;
     const start = createDateFromStrings(dateString, timeString);
     if (isNaN(start.getTime())) return false;
     const end = new Date(start.getTime() + durationInHours * 60 * 60 * 1000);
-
     return bookedSlots.some(booking => {
       const bStart = new Date(booking.startTime);
       const bEnd = new Date(booking.endTime);
       return start < bEnd && end > bStart;
     });
-  };
+  }, [bookedSlots]);
 
-  const isDayFullyBooked = (dateString: string) => {
-    // Check if all 1-hour slots are booked for this day
-    return availableTimes.every(time => checkSlotBooked(dateString, time, 1));
-  };
+  const isDayFullyBooked = useCallback((dateString: string) => {
+    return AVAILABLE_TIMES.every(time => checkSlotBooked(dateString, time, 1));
+  }, [checkSlotBooked]);
 
-  const sessionTypes = [
-    { name: 'Solo Session (Taguig)', duration: '+ Ballboy Required', price: '₱850/hr', priceAmount: '₱850', priceDetails: ['Per Hour'], rawPrice: 850 },
-    { name: 'Solo Session (QC/Parañaque)', duration: '+ Ballboy Required', price: '₱1000/hr', priceAmount: '₱1000', priceDetails: ['Per Hour'], rawPrice: 1000 },
-    { name: '2-3 Pax Group', duration: '+ Ballboy Required', price: '₱500/hd/hr', priceAmount: '₱500', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 500 },
-    { name: '4-5 Pax Group', duration: 'Free Ballboy (if 5 pax)', price: '₱400/hd/hr', priceAmount: '₱400', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 400 },
-    { name: '6-7 Pax Group', duration: 'Free Ballboy', price: '₱350/hd/hr', priceAmount: '₱350', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 350 },
-    { name: '8-10 Pax Group', duration: 'Free Ballboy', price: '₱300/hd/hr', priceAmount: '₱300', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 300 },
-    { name: 'Corporate', duration: 'Hourly Rate', price: '₱2500/hr', priceAmount: '₱2500', priceDetails: ['Per Hour'], rawPrice: 2500 },
-    { name: 'Saturday Group Session', duration: '2 Hours • All In', price: '₱1000/hd/2hr', priceAmount: '₱1000', priceDetails: ['Per Head', 'Per 2 Hours'], rawPrice: 1000 },
-  ];
-
-  const stats = [
-    { label: 'Students Coached', value: '300+' },
-    { label: 'Development Focus', value: 'Youth' },
-    { label: 'Training Style', value: 'Game-Based' },
-  ];
+  // Use module-level SESSION_TYPES constant — no recreation on re-render
+  const sessionTypes = SESSION_TYPES;
 
   const handleBooking = async () => {
     setIsSubmitting(true);
@@ -212,22 +319,7 @@ export default function App() {
     }
   };
 
-  const checkStatus = async () => {
-    if (!statusEmail) return;
-    setIsChecking(true);
-    try {
-      const res = await fetch('/api/bookings');
-      if (res.ok) {
-        const allBookings = await res.json();
-        const userBookings = allBookings.filter((b: Booking) => b.clientEmail.toLowerCase() === statusEmail.toLowerCase());
-        setCheckingResult(userBookings);
-      }
-    } catch (error) {
-      console.error("Checking failed", error);
-    } finally {
-      setIsChecking(false);
-    }
-  };
+
 
   const renderCalendar = () => {
     const monthStart = startOfMonth(currentMonth);
@@ -328,10 +420,10 @@ export default function App() {
       </div>
 
       {/* Slots Side Overlay on Mobile / Side-by-Side on Desktop */}
-      <div className={`absolute md:relative inset-0 md:inset-auto w-full md:w-[45%] md:flex-1 bg-zinc-950 md:bg-black/20 transition-transform duration-500 ease-in-out z-20 overflow-hidden md:overflow-visible ${showMobileSlots ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
+      <div className={`absolute md:relative inset-0 md:inset-auto w-full md:w-[45%] md:flex-1 bg-zinc-950 md:bg-black/20 transition-transform duration-300 ease-in-out z-20 overflow-hidden md:overflow-visible will-change-transform ${showMobileSlots ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
         
         {/* SLOTS PANEL */}
-        <div className={`absolute md:relative inset-0 md:inset-auto w-full h-full md:h-auto flex flex-col transition-transform duration-500 ${showMobileDuration ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
+        <div className={`absolute md:relative inset-0 md:inset-auto w-full h-full md:h-auto flex flex-col transition-transform duration-300 will-change-transform ${showMobileDuration ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
           <div className="flex items-center gap-3 p-4 sm:p-6 sticky top-0 bg-zinc-950/95 md:bg-transparent backdrop-blur-xl z-10 border-b border-zinc-800/80 md:border-none md:pb-2">
             <button
               onClick={() => {
@@ -666,7 +758,7 @@ export default function App() {
                   ))}
                 </div>
                 <div className="grid grid-cols-2 gap-4 md:flex md:flex-wrap items-start md:gap-10 mb-16">
-                  {stats.map((stat) => (
+                  {STATS.map((stat) => (
                     <div key={stat.label} className="group min-w-[80px]">
                       <div className="text-2xl md:text-4xl font-black text-green-400 mb-1 tracking-tighter italic whitespace-nowrap">{stat.value}</div>
                       <div className="text-[9px] md:text-[10px] text-zinc-500 uppercase font-black tracking-[0.2em] whitespace-nowrap">{stat.label}</div>
@@ -986,71 +1078,7 @@ export default function App() {
           </Stepper>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 md:px-12 py-32 border-t border-zinc-900">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            <div>
-              <h2 className="text-5xl font-black text-white tracking-tighter mb-6 uppercase italic">Track Your Status</h2>
-              <p className="text-zinc-500 text-lg font-medium leading-relaxed max-w-md">
-                Enter your registration email to view your booking status and any system messages from Coach Marvin.
-              </p>
-            </div>
-            <form autoComplete="off" onSubmit={(e) => { e.preventDefault(); checkStatus(); }} className="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl space-y-6">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <input
-                  type="text"
-                  inputMode="email"
-                  value={statusEmail}
-                  onChange={(e) => setStatusEmail(e.target.value)}
-                  placeholder="YOUR REGISTRATION EMAIL"
-                  className="w-full sm:flex-1 min-h-[44px] px-6 py-4 bg-black border border-zinc-800 rounded-2xl text-white font-bold outline-none focus:border-green-400 transition-colors text-sm sm:text-base"
-                  id="trk_search"
-                  name="trk_search"
-                  autoComplete="off"
-                />
-                <button
-                  type="button"
-                  onClick={checkStatus}
-                  disabled={isChecking}
-                  className="w-full sm:w-auto min-h-[44px] px-8 py-4 bg-zinc-800 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-green-400 hover:text-black transition-all"
-                >
-                  {isChecking ? '...' : 'CHECK'}
-                </button>
-              </div>
-
-              {checkingResult && (
-                <div className="space-y-4 pt-6">
-                  {checkingResult.length === 0 ? (
-                    <p className="text-zinc-500 text-center font-bold uppercase tracking-widest text-xs">No active bookings found for this email.</p>
-                  ) : (
-                    checkingResult.map((b) => (
-                      <div key={b._id} className="p-6 bg-black rounded-2xl border border-zinc-800">
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <div className="text-xs font-black text-zinc-600 uppercase tracking-widest">Status</div>
-                            <div className={`text-sm font-black uppercase ${b.status === 'confirmed' ? 'text-green-400' : 'text-yellow-400'}`}>
-                              {b.status}
-                            </div>
-                          </div>
-                          <div className="text-right text-xs font-black text-zinc-500 uppercase">
-                            {new Date(b.startTime).toLocaleDateString()}
-                          </div>
-                        </div>
-
-                        {b.systemMessage && (
-                          <div className="mt-4 p-4 bg-green-400/5 border border-green-400/10 rounded-xl">
-                            <p className="text-green-400/90 text-sm italic font-medium">
-                              &quot;{b.systemMessage}&quot;
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-            </form>
-          </div>
-        </div>
+        <TrackStatus />
 
         {/* Footer */}
         <footer className="border-t border-zinc-900 bg-black py-12">
