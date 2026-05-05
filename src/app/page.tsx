@@ -405,9 +405,9 @@ export default function App() {
   };
 
   const renderBookingUI = () => (
-    <div className={`relative flex flex-col md:flex-row overflow-hidden bg-black border border-zinc-800/80 rounded-2xl sm:rounded-[2rem] shadow-2xl md:min-h-[500px] ${isMobile ? 'h-full w-full rounded-none border-none shadow-none' : ''}`}>
+    <div className={`relative flex flex-col md:flex-row overflow-hidden bg-black border border-zinc-800/80 rounded-2xl sm:rounded-[1.5rem] shadow-2xl md:min-h-[400px] ${isMobile ? 'h-full w-full rounded-none border-none shadow-none' : ''}`}>
       {/* Calendar Side */}
-      <div className={`w-full md:w-[55%] flex-shrink-0 p-4 sm:p-6 md:border-r border-zinc-800/80 bg-zinc-950/50 flex flex-col ${isMobile ? 'h-full overflow-y-auto' : ''}`}>
+      <div className={`w-full md:w-[55%] flex-shrink-0 p-3 sm:p-4 md:border-r border-zinc-800/80 bg-zinc-950/50 flex flex-col ${isMobile ? 'h-full overflow-y-auto' : ''}`}>
         <div className="flex-1">
           {renderCalendar()}
         </div>
@@ -418,7 +418,7 @@ export default function App() {
         
         {/* SLOTS PANEL */}
         <div className={`absolute md:relative inset-0 md:inset-auto w-full h-full md:h-auto flex flex-col transition-transform duration-300 will-change-transform ${showMobileDuration ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}`}>
-          <div className="flex items-center gap-3 p-4 sm:p-6 sticky top-0 bg-zinc-950/95 md:bg-transparent backdrop-blur-xl z-10 border-b border-zinc-800/80 md:border-none md:pb-2">
+          <div className="flex items-center gap-3 p-3 sm:p-4 sticky top-0 bg-zinc-950/95 md:bg-transparent backdrop-blur-xl z-10 border-b border-zinc-800/80 md:border-none md:pb-1">
             <button
               onClick={() => {
                 setShowMobileSlots(false);
@@ -428,13 +428,13 @@ export default function App() {
             >
               <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
-            <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-tighter italic flex items-center gap-2 sm:gap-3">
+            <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-tighter italic flex items-center gap-2 sm:gap-3">
               <Clock className="hidden sm:block w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
               {selectedDate ? format(new Date(selectedDate), "EEEE, MMMM d") : "Select a Date"}
             </h3>
           </div>
 
-          <div className="p-4 sm:p-6 md:pt-2 overflow-y-auto h-[calc(100%-80px)] md:h-auto">
+          <div className="p-3 sm:p-4 md:pt-1 overflow-y-auto h-[calc(100%-80px)] md:h-auto">
             <div className="space-y-3">
               <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Slot</label>
               <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-2 gap-2">
@@ -468,20 +468,20 @@ export default function App() {
 
         {/* DURATION PANEL */}
         <div className={`absolute md:relative inset-0 md:inset-auto w-full h-full md:h-auto flex flex-col transition-transform duration-500 bg-zinc-950 md:bg-transparent ${showMobileDuration ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
-          <div className="flex md:hidden items-center gap-3 p-4 sm:p-6 sticky top-0 bg-zinc-950/95 backdrop-blur-xl z-10 border-b border-zinc-800/80">
+          <div className="flex md:hidden items-center gap-3 p-3 sm:p-4 sticky top-0 bg-zinc-950/95 backdrop-blur-xl z-10 border-b border-zinc-800/80">
             <button
               onClick={() => setShowMobileDuration(false)}
               className="md:hidden flex items-center justify-center min-h-[36px] min-w-[36px] bg-zinc-900 rounded-full text-zinc-400 hover:text-white transition-colors"
             >
               <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
-            <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-tighter italic flex items-center gap-2 sm:gap-3">
+            <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-tighter italic flex items-center gap-2 sm:gap-3">
               <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 hidden sm:block" />
               Duration for {selectedTime}
             </h3>
           </div>
 
-          <div className="p-4 sm:p-6 md:pt-6 overflow-y-auto h-[calc(100%-80px)] md:h-auto border-t border-transparent md:border-zinc-800/50">
+          <div className="p-3 sm:p-4 md:pt-4 overflow-y-auto h-[calc(100%-80px)] md:h-auto border-t border-transparent md:border-zinc-800/50">
             <div className="space-y-3 pb-10 md:pb-0">
               <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Duration {sessionType && !sessionType.includes('Package') && sessionType !== 'Saturday Group Session' && '(Hours)'}</label>
                {!sessionType ? (
@@ -886,9 +886,9 @@ export default function App() {
           </div>
 
           {/* Stepper Flow */}
-          <div className="text-center mb-16 space-y-4 scroll-mt-32" id="booking">
-            <h2 className="text-4xl md:text-7xl font-black text-white tracking-tighter">RESERVE YOUR COURT</h2>
-            <p className="text-lg md:text-xl text-zinc-500 font-medium italic">Three rapid steps to lock in your coaching session.</p>
+          <div className="text-center mb-4 space-y-2 scroll-mt-20 md:scroll-mt-24" id="booking">
+            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase italic">RESERVE YOUR COURT</h2>
+            <p className="text-sm md:text-base text-zinc-500 font-medium italic">Three rapid steps to lock in your coaching session.</p>
           </div>
 
           <div ref={stepperRef}>
@@ -903,8 +903,8 @@ export default function App() {
             disableStepIndicators={true}
           >
             <Step>
-              <div className="space-y-5 py-2">
-                <h3 className="text-2xl font-black text-white tracking-tighter text-center mb-4">1. CHOOSE YOUR PATH</h3>
+              <div className="space-y-4 py-1">
+                <h3 className="text-xl font-black text-white tracking-tighter text-center mb-2">1. CHOOSE YOUR PATH</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {sessionTypes.map((session, idx) => {
                     const isSelected = sessionType === session.name;
@@ -921,7 +921,7 @@ export default function App() {
                             setSelectedDuration(1);
                           }
                         }}
-                        className={`group relative p-4 sm:p-5 rounded-2xl transition-all duration-500 text-left flex flex-col h-full overflow-hidden ${
+                        className={`group relative p-3 sm:p-4 rounded-xl transition-all duration-500 text-left flex flex-col h-full overflow-hidden ${
                           isSelected
                             ? 'bg-zinc-900 border-2 border-green-400'
                             : 'bg-zinc-900/60 border border-zinc-800 hover:border-green-400/30'
@@ -937,7 +937,7 @@ export default function App() {
                               isSelected ? 'text-green-400' : 'text-zinc-700 group-hover:text-zinc-600'
                             }`}
                             style={{
-                              fontSize: 'clamp(3rem, 5vw, 4.5rem)',
+                              fontSize: 'clamp(2.5rem, 4vw, 3.5rem)',
                               fontFamily: 'var(--font-orbitron), monospace',
                               fontVariantNumeric: 'tabular-nums',
                               filter: isSelected
@@ -984,8 +984,8 @@ export default function App() {
 
             {/* STEP 2 */}
             <Step>
-              <div className="space-y-5 py-2 w-full max-w-5xl mx-auto">
-                <h3 className="text-2xl font-black text-white tracking-tighter text-center mb-4">2. AVAILABILITY</h3>
+              <div className="space-y-4 py-1 w-full max-w-5xl mx-auto">
+                <h3 className="text-xl font-black text-white tracking-tighter text-center mb-2">2. AVAILABILITY</h3>
                 {!isMobile ? renderBookingUI() : (
                   <div className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 text-center space-y-4">
                     {selectedDate && selectedTime ? (
@@ -1006,9 +1006,9 @@ export default function App() {
 
             {/* STEP 3 */}
             <Step>
-              <div className="space-y-4 py-2 w-full max-w-2xl mx-auto">
-                <h3 className="text-2xl font-black text-white tracking-tighter text-center mb-4">3. SECURE YOUR SPOT</h3>
-                <form autoComplete="off" onSubmit={(e) => e.preventDefault()} className="bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 backdrop-blur-sm shadow-2xl space-y-4">
+              <div className="space-y-3 py-1 w-full max-w-3xl mx-auto">
+                <h3 className="text-xl font-black text-white tracking-tighter text-center mb-2">3. SECURE YOUR SPOT</h3>
+                <form autoComplete="off" onSubmit={(e) => e.preventDefault()} className="bg-zinc-900/40 border border-zinc-800 rounded-2xl p-4 backdrop-blur-sm shadow-2xl space-y-3">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label htmlFor="bk_fn" className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">First Name</label>

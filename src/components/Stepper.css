@@ -13,7 +13,7 @@
   margin-left: auto;
   margin-right: auto;
   width: 100%;
-  max-width: 50rem;
+  max-width: 62rem;
   border-radius: 2rem;
   box-shadow:
     0 20px 25px -5px rgba(0, 0, 0, 0.5),
@@ -31,7 +31,7 @@
 
 @media (min-width: 768px) {
   .step-indicator-row {
-    padding: 2rem;
+    padding: 1.25rem 2rem;
   }
 }
 
@@ -48,11 +48,11 @@
 .footer-container {
   padding-left: 2rem;
   padding-right: 2rem;
-  padding-bottom: 2rem;
+  padding-bottom: 1.5rem;
 }
 
 .footer-nav {
-  margin-top: 2.5rem;
+  margin-top: 1rem;
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
