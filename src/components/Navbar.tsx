@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+
 import { useState } from "react";
 import ScheduleModal from "./ScheduleModal";
 import { Calendar } from "lucide-react";
@@ -14,7 +14,14 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 md:px-12">
           <div className="flex justify-between h-20 md:h-24 items-center">
             <div className="flex items-center">
-              <Link href="/" className="group flex items-center min-h-[44px] min-w-[44px]">
+              <a
+                href="/"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="group flex items-center min-h-[44px] min-w-[44px] cursor-pointer"
+              >
                 <div className="relative h-12 w-12 md:h-20 md:w-20 group-hover:scale-105 transition-transform duration-500">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -23,7 +30,7 @@ export default function Navbar() {
                     className="w-full h-full object-contain"
                   />
                 </div>
-              </Link>
+              </a>
             </div>
 
             <div className="flex items-center gap-3 md:gap-4">

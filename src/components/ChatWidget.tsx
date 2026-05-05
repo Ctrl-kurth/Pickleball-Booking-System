@@ -24,7 +24,7 @@ export default function ChatWidget() {
     {
       id: "1",
       role: "assistant",
-      content: "Hey there! I'm your CMA Assistant. Looking to book a session with Coach Marvin, or do you have questions about our coaching?",
+      content: "What's up! I'm Coach Marvin. Whether you want to book a session, ask about pricing, or get some pickleball tips — I got you. How can I help?",
     },
   ]);
   const [input, setInput] = useState("");
