@@ -21,13 +21,14 @@ export default function Navbar({ minimal = false }: NavbarProps) {
           <div className="flex justify-between h-20 md:h-24 items-center">
             <div className="flex items-center">
               <a
-                href="/"
+                href="/#home"
                 onClick={(e) => {
                   if (isHomePage) {
                     e.preventDefault();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                    window.history.replaceState(null, '', '/#home');
                   }
-                  // On non-home pages (like /login), let the default href="/" navigation happen
+                  // On non-home pages (like /login), let the default href="/#home" navigation happen
                 }}
                 className="group flex items-center min-h-[44px] min-w-[44px] cursor-pointer"
               >

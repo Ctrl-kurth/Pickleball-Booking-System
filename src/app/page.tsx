@@ -3,7 +3,7 @@
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 import { Star, Award, Users, Mail, Phone, Zap, TrendingUp, CheckCircle2, ChevronLeft, ChevronRight, User, Target, Flame, Crown, Briefcase, Calendar, Clock } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, addDays, isBefore, startOfDay } from 'date-fns';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, addDays, isBefore, startOfDay, getDay } from 'date-fns';
 import Navbar from '@/components/Navbar';
 import Stepper, { Step } from '@/components/Stepper';
 import dynamic from 'next/dynamic';
@@ -155,14 +155,14 @@ export default function App() {
   };
 
   const sessionTypes = [
-    { name: 'Solo Session (Taguig)', duration: '+ Ballboy Required', price: '₱850/hr', rawPrice: 850, icon: User },
-    { name: 'Solo Session (QC/Parañaque)', duration: '+ Ballboy Required', price: '₱1000/hr', rawPrice: 1000, icon: Target },
-    { name: '2-3 Pax Group', duration: '+ Ballboy Required', price: '₱500/hd/hr', rawPrice: 500, icon: Users },
-    { name: '4-5 Pax Group', duration: 'Free Ballboy (if 5 pax)', price: '₱400/hd/hr', rawPrice: 400, icon: Flame },
-    { name: '6-7 Pax Group', duration: 'Free Ballboy', price: '₱350/hd/hr', rawPrice: 350, icon: Star },
-    { name: '8-10 Pax Group', duration: 'Free Ballboy', price: '₱300/hd/hr', rawPrice: 300, icon: Crown },
-    { name: 'Corporate', duration: 'Hourly Rate', price: '₱2500/hr', rawPrice: 2500, icon: Briefcase },
-    { name: 'Saturday Group Session', duration: 'All In', price: '₱1000/hd/hr', rawPrice: 1000, icon: Calendar },
+    { name: 'Solo Session (Taguig)', duration: '+ Ballboy Required', price: '₱850/hr', priceAmount: '₱850', priceDetails: ['Per Hour'], rawPrice: 850, icon: User },
+    { name: 'Solo Session (QC/Parañaque)', duration: '+ Ballboy Required', price: '₱1000/hr', priceAmount: '₱1000', priceDetails: ['Per Hour'], rawPrice: 1000, icon: Target },
+    { name: '2-3 Pax Group', duration: '+ Ballboy Required', price: '₱500/hd/hr', priceAmount: '₱500', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 500, icon: Users },
+    { name: '4-5 Pax Group', duration: 'Free Ballboy (if 5 pax)', price: '₱400/hd/hr', priceAmount: '₱400', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 400, icon: Flame },
+    { name: '6-7 Pax Group', duration: 'Free Ballboy', price: '₱350/hd/hr', priceAmount: '₱350', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 350, icon: Star },
+    { name: '8-10 Pax Group', duration: 'Free Ballboy', price: '₱300/hd/hr', priceAmount: '₱300', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 300, icon: Crown },
+    { name: 'Corporate', duration: 'Hourly Rate', price: '₱2500/hr', priceAmount: '₱2500', priceDetails: ['Per Hour'], rawPrice: 2500, icon: Briefcase },
+    { name: 'Saturday Group Session', duration: '2 Hours • All In', price: '₱1000/hd/2hr', priceAmount: '₱1000', priceDetails: ['Per Head', 'Per 2 Hours'], rawPrice: 1000, icon: Calendar },
   ];
 
   const stats = [
@@ -243,6 +243,8 @@ export default function App() {
 
     const today = startOfDay(new Date());
 
+    const isSaturdaySession = sessionType === 'Saturday Group Session';
+
     while (day <= endDate) {
       for (let i = 0; i < 7; i++) {
         formattedDate = format(day, dateFormat);
@@ -252,29 +254,31 @@ export default function App() {
         const isSelected = selectedDate === dayString;
         const isCurrentMonth = isSameMonth(day, monthStart);
         const isFullyBooked = !isPast && isDayFullyBooked(dayString);
+        const isNotSaturday = isSaturdaySession && getDay(cloneDay) !== 6;
 
         days.push(
           <button
             type="button"
             key={day.toString()}
             onClick={() => {
-              if (!isPast && isCurrentMonth && !isFullyBooked) {
+              if (!isPast && isCurrentMonth && !isFullyBooked && !isNotSaturday) {
                 setSelectedDate(dayString);
                 setSelectedTime('');
                 setShowMobileSlots(true);
                 setShowMobileDuration(false);
               }
             }}
-            disabled={isPast || !isCurrentMonth}
+            disabled={isPast || !isCurrentMonth || isNotSaturday}
             className={`relative flex flex-col items-center justify-center w-full aspect-square rounded-2xl text-sm font-black transition-all duration-300 ${!isCurrentMonth ? 'text-zinc-800 pointer-events-none opacity-0' :
                 isPast ? 'text-zinc-700 pointer-events-none' :
+                  isNotSaturday ? 'text-zinc-800 pointer-events-none opacity-30' :
                   isSelected ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 z-10 italic' :
                     isFullyBooked ? 'bg-red-500/5 text-red-500/50 hover:bg-red-500/10' :
                       'text-zinc-300 hover:bg-zinc-800/80 hover:text-white border border-transparent hover:border-zinc-700'
               }`}
           >
             <span>{formattedDate}</span>
-            {isCurrentMonth && !isPast && (
+            {isCurrentMonth && !isPast && !isNotSaturday && (
               <div className={`w-1.5 h-1.5 rounded-full mt-1.5 transition-colors ${isFullyBooked ? 'bg-red-500/50' : isSelected ? 'bg-black' : 'bg-green-400'}`} />
             )}
           </button>
@@ -393,14 +397,21 @@ export default function App() {
 
           <div className="p-4 sm:p-6 md:pt-6 overflow-y-auto h-[calc(100%-80px)] md:h-auto border-t border-transparent md:border-zinc-800/50">
             <div className="space-y-3 pb-10 md:pb-0">
-              <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Duration {sessionType && !sessionType.includes('Package') && '(Hours)'}</label>
-              {!sessionType ? (
+              <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Duration {sessionType && !sessionType.includes('Package') && sessionType !== 'Saturday Group Session' && '(Hours)'}</label>
+               {!sessionType ? (
                 <div className="py-3 px-5 rounded-xl bg-zinc-800/20 border border-zinc-800 text-zinc-500 text-sm font-bold text-center flex items-center justify-center min-h-[100px]">
                   Select a Session Type to unlock duration formatting
                 </div>
               ) : sessionType.includes('Package') ? (
                 <div className="py-3 px-5 rounded-xl bg-zinc-800/20 border border-zinc-800 text-green-400/80 text-sm font-bold text-center border-dashed flex items-center justify-center min-h-[100px]">
                   Duration is pre-configured for this option
+                </div>
+              ) : sessionType === 'Saturday Group Session' ? (
+                <div className="py-3 px-5 rounded-xl bg-zinc-800/20 border border-zinc-800 text-green-400/80 text-sm font-bold text-center border-dashed flex items-center justify-center min-h-[100px]">
+                  <div className="space-y-1">
+                    <div className="text-green-400 font-black text-lg">2 Hours</div>
+                    <div className="text-zinc-500 text-[10px] uppercase tracking-widest">Fixed duration • Saturdays only</div>
+                  </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2">
@@ -617,7 +628,7 @@ export default function App() {
       <div className="relative z-10">
         <Navbar />
         {/* Hero Section */}
-        <div className="relative h-screen w-full overflow-hidden">
+        <div id="home" className="relative h-screen w-full overflow-hidden">
           <ImageWithFallback
             src="/pb1.jpg"
             alt="Pickleball collective"
@@ -813,7 +824,18 @@ export default function App() {
                     return (
                       <button
                         key={session.name}
-                        onClick={() => setSessionType(session.name)}
+                        onClick={() => {
+                          setSessionType(session.name);
+                          // Reset date/time when switching session types
+                          setSelectedDate('');
+                          setSelectedTime('');
+                          // Auto-set duration for Saturday Group Session
+                          if (session.name === 'Saturday Group Session') {
+                            setSelectedDuration(2);
+                          } else {
+                            setSelectedDuration(1);
+                          }
+                        }}
                         className={`group relative p-5 sm:p-6 rounded-3xl transition-all duration-500 overflow-hidden text-left flex flex-col h-full ${sessionType === session.name
                           ? 'bg-gradient-to-br from-green-400/20 to-green-400/5 border-2 border-green-400 shadow-[0_0_50px_rgba(74,222,128,0.15)]'
                           : 'bg-zinc-900/40 border border-zinc-800 hover:border-green-400/40 hover:bg-zinc-900/60'
@@ -827,8 +849,13 @@ export default function App() {
                         </div>
                         <h4 className={`text-lg font-black mb-1 tracking-tight transition-colors ${sessionType === session.name ? 'text-white' : 'text-zinc-200'}`}>{session.name}</h4>
                         <p className="text-zinc-500 font-bold text-[10px] mb-3 uppercase tracking-widest">{session.duration}</p>
-                        <div className="flex items-baseline gap-1 mt-auto pt-2">
-                          <span className="text-xl sm:text-2xl lg:text-xl xl:text-2xl font-black text-green-400 tracking-tighter italic whitespace-nowrap">{session.price}</span>
+                        <div className="flex flex-col gap-1 mt-auto pt-2 min-w-0">
+                          <span className="text-2xl font-black text-green-400 tracking-tighter italic leading-none">{session.priceAmount}</span>
+                          <div className="flex flex-col gap-0.5">
+                            {session.priceDetails.map((detail) => (
+                              <span key={detail} className="text-[9px] font-black text-zinc-500 uppercase tracking-widest leading-tight">— {detail}</span>
+                            ))}
+                          </div>
                         </div>
 
                         {sessionType === session.name && (

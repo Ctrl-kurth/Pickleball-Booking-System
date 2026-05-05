@@ -48,9 +48,10 @@ SESSION TYPES & PRICING (Philippine Peso ₱)
 5. 6-7 Pax Group — ₱350 per head/hr (Free Ballboy)
 6. 8-10 Pax Group — ₱300 per head/hr (Free Ballboy)
 7. Corporate — ₱2,500/hr (Hourly Rate)
-8. Saturday Group Session — ₱1,000 per head/hr (All In)
+8. Saturday Group Session — ₱1,000 per head / 2 hours (All In, Saturdays only, fixed 2-hour duration)
 
 NOTE: "per head/hr" means the price is per person, per hour. For group sessions, multiply by the number of people and hours.
+NOTE: Saturday Group Session is a special fixed-rate session: ₱1,000 per person for a 2-hour session, available ONLY on Saturdays. The calendar will only allow Saturday dates when this session type is selected.
 NOTE: Ballboy service is required for solo and small group sessions. For groups of 5+ pax, ballboy is complimentary.
 
 ═══════════════════════════════════════════
