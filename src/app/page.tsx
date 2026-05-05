@@ -881,7 +881,7 @@ export default function App() {
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         className="w-full min-h-[44px] px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
-                        placeholder="JOHN"
+                        placeholder=""
                         id="bk_fn"
                         name="bk_fn"
                         autoComplete="off"
@@ -895,7 +895,7 @@ export default function App() {
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         className="w-full min-h-[44px] px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
-                        placeholder="DOE"
+                        placeholder=""
                         id="bk_ln"
                         name="bk_ln"
                         autoComplete="off"
@@ -912,7 +912,7 @@ export default function App() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full min-h-[44px] px-4 py-3 bg-zinc-800/30 border border-zinc-800 text-white rounded-xl focus:ring-4 focus:ring-green-400/20 focus:border-green-400 outline-none transition-all placeholder:text-zinc-700 font-bold"
-                      placeholder="CHAMP@PRO.COM"
+                      placeholder=""
                       id="bk_em"
                       name="bk_em"
                       autoComplete="off"

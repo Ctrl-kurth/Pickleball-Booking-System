@@ -59,9 +59,23 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
     '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'
   ];
 
+  // Cross-browser date parsing (Safari/iOS can't parse "yyyy-MM-dd h:mm AM")
+  const createDateFromStrings = (ds: string, ts: string): Date => {
+    if (!ds || !ts) return new Date(NaN);
+    const [year, month, day] = ds.split('-').map(Number);
+    const [time, period] = ts.split(' ');
+    const [hoursStr, minutesStr] = time.split(':');
+    let hours = Number(hoursStr);
+    const minutes = Number(minutesStr);
+    if (period === 'PM' && hours !== 12) hours += 12;
+    else if (period === 'AM' && hours === 12) hours = 0;
+    return new Date(year, month - 1, day, hours, minutes);
+  };
+
   const checkSlotBooked = (dateString: string, timeString: string, durationInHours: number = 1) => {
     if (!dateString) return false;
-    const start = new Date(`${dateString} ${timeString}`);
+    const start = createDateFromStrings(dateString, timeString);
+    if (isNaN(start.getTime())) return false;
     const end = new Date(start.getTime() + durationInHours * 60 * 60 * 1000);
 
     return bookedSlots.some(booking => {
