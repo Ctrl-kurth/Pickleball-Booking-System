@@ -177,26 +177,20 @@ export default function App() {
   const [showMobileBookingModal, setShowMobileBookingModal] = useState(false);
 
   const isInitialMount = useRef(true);
+  const stepperRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
-    const bookingSection = document.getElementById('booking');
-    if (bookingSection) {
-      setTimeout(() => {
-        const offset = window.innerWidth < 768 ? 80 : 120;
-        const bodyRect = document.body.getBoundingClientRect().top;
-        const elementRect = bookingSection.getBoundingClientRect().top;
-        const elementPosition = elementRect - bodyRect;
-        const offsetPosition = elementPosition - offset;
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
-      }, 50);
-    }
+    setTimeout(() => {
+      const el = stepperRef.current;
+      if (el) {
+        const offset = 80; // small padding so step indicators stay visible
+        const top = el.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    }, 50);
   }, [currentStep]);
 
   useEffect(() => {
@@ -897,6 +891,7 @@ export default function App() {
             <p className="text-lg md:text-xl text-zinc-500 font-medium italic">Three rapid steps to lock in your coaching session.</p>
           </div>
 
+          <div ref={stepperRef}>
           <Stepper
             initialStep={1}
             step={currentStep}
@@ -1076,6 +1071,7 @@ export default function App() {
               </div>
             </Step>
           </Stepper>
+          </div>
         </div>
 
         <TrackStatus />
