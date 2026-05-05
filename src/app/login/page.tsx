@@ -37,7 +37,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <Navbar />
+      <Navbar minimal />
 
       <main className="flex items-center justify-center min-h-screen p-6">
         <div className="w-full max-w-md">

@@ -2,6 +2,19 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
+/**
+ * Model fallback chain — ordered by preference.
+ * If a model hits rate limits (429) or errors, we automatically try the next one.
+ * This maximizes free tier usage across all available Gemini models.
+ */
+const MODEL_CHAIN = [
+  "gemini-2.5-flash",           // Primary: best price-performance, stable
+  "gemini-2.5-flash-lite",      // Fallback 1: fastest, most budget-friendly
+  "gemini-2.5-pro",             // Fallback 2: most advanced (lower free limits)
+  "gemini-3-flash-preview",     // Fallback 3: next-gen preview
+  "gemini-3.1-flash-lite-preview", // Fallback 4: next-gen lite preview
+];
+
 export const getGeminiModel = (modelName = "gemini-2.5-flash") => {
   return genAI.getGenerativeModel({ model: modelName });
 };
@@ -90,8 +103,6 @@ RESPONSE GUIDELINES
 `;
 
 export async function askAssistant(userQuery: string, context: string) {
-  const model = getGeminiModel();
-  
   const prompt = `
   ${SYSTEM_PROMPT}
 
@@ -107,7 +118,34 @@ export async function askAssistant(userQuery: string, context: string) {
   YOUR RESPONSE (as Coach Marvin):
   `;
 
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  return response.text();
+  // Try each model in the chain until one succeeds
+  let lastError: unknown = null;
+
+  for (const modelName of MODEL_CHAIN) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+
+      if (text) {
+        console.log(`[CMA Chat] Success with model: ${modelName}`);
+        return text;
+      }
+    } catch (error: unknown) {
+      lastError = error;
+      const err = error as { status?: number; message?: string };
+      const isRateLimit = err.status === 429 || err.message?.includes('429') || err.message?.includes('RESOURCE_EXHAUSTED');
+      const isModelError = err.status === 404 || err.message?.includes('not found');
+
+      console.warn(`[CMA Chat] Model "${modelName}" failed (${isRateLimit ? 'RATE LIMITED' : isModelError ? 'NOT FOUND' : 'ERROR'}): ${err.message?.slice(0, 100)}`);
+
+      // Continue to next model in the chain
+      continue;
+    }
+  }
+
+  // All models exhausted
+  console.error("[CMA Chat] All models in the fallback chain failed.", lastError);
+  throw new Error("All AI models are currently at capacity. Please try again in a moment.");
 }
