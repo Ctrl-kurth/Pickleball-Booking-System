@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { format } from "date-fns";
-import { Calendar, Clock, DollarSign, User, Mail, CheckCircle, XCircle, Trash2, Filter, LogOut } from "lucide-react";
+import { Calendar, Clock, User, Mail, CheckCircle, XCircle, Trash2, Filter, LogOut, ChevronDown, X } from "lucide-react";
 import Link from "next/link";
 
 interface Booking {
@@ -24,6 +24,21 @@ export default function AdminDashboard() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "confirmed" | "cancelled">("all");
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "highest" | "lowest">("newest");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  // Close filter panel on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
+        setIsFilterOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -36,11 +51,24 @@ export default function AdminDashboard() {
     }
   };
 
-  const filteredBookings = bookings.filter(b =>
-    b.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    b.clientEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    b._id.includes(searchQuery)
-  );
+  const filteredBookings = bookings
+    .filter(b =>
+      (filterStatus === 'all' || b.status === filterStatus) &&
+      (
+        b.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        b.clientEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        b._id.includes(searchQuery)
+      )
+    )
+    .sort((a, b) => {
+      if (sortBy === 'newest') return new Date(b.startTime).getTime() - new Date(a.startTime).getTime();
+      if (sortBy === 'oldest') return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+      if (sortBy === 'highest') return b.totalPrice - a.totalPrice;
+      if (sortBy === 'lowest') return a.totalPrice - b.totalPrice;
+      return 0;
+    });
+
+  const activeFilterCount = (filterStatus !== 'all' ? 1 : 0) + (sortBy !== 'newest' ? 1 : 0);
 
   const fetchBookings = useCallback(async () => {
     setIsLoading(true);
@@ -219,10 +247,87 @@ export default function AdminDashboard() {
             className="w-full px-5 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-white outline-none focus:border-zinc-600 placeholder:text-zinc-600 font-medium text-sm transition-all"
           />
         </div>
-        <button className="flex items-center justify-center gap-2 px-6 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:bg-zinc-800 transition-colors">
-          <Filter className="w-4 h-4 text-green-400" />
-          <span className="text-white text-sm font-bold">Filter</span>
-        </button>
+        <div className="relative" ref={filterRef}>
+          <button
+            onClick={() => setIsFilterOpen(prev => !prev)}
+            className={`flex items-center justify-center gap-2 px-6 py-3 border rounded-xl transition-all font-bold text-sm ${
+              isFilterOpen || activeFilterCount > 0
+                ? 'bg-green-400/10 border-green-400/40 text-green-400'
+                : 'bg-zinc-900/50 border-zinc-800 text-white hover:bg-zinc-800'
+            }`}
+          >
+            <Filter className="w-4 h-4 text-green-400" />
+            <span>Filter</span>
+            {activeFilterCount > 0 && (
+              <span className="w-5 h-5 rounded-full bg-green-400 text-black text-[10px] font-black flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
+            <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          {/* Dropdown Panel */}
+          {isFilterOpen && (
+            <div className="absolute right-0 top-full mt-2 w-64 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
+              <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
+                <span className="text-xs font-black text-zinc-400 uppercase tracking-widest">Filter & Sort</span>
+                {activeFilterCount > 0 && (
+                  <button
+                    onClick={() => { setFilterStatus('all'); setSortBy('newest'); }}
+                    className="flex items-center gap-1 text-[10px] font-black text-red-400 hover:text-red-300 uppercase tracking-widest transition-colors"
+                  >
+                    <X className="w-3 h-3" /> Clear All
+                  </button>
+                )}
+              </div>
+
+              {/* Status Filter */}
+              <div className="p-4 border-b border-zinc-800">
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3">Status</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {(['all', 'pending', 'confirmed', 'cancelled'] as const).map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setFilterStatus(s)}
+                      className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                        filterStatus === s
+                          ? 'bg-green-400 text-black'
+                          : 'bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-white'
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sort */}
+              <div className="p-4">
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3">Sort By</p>
+                <div className="flex flex-col gap-2">
+                  {([
+                    { value: 'newest', label: 'Newest First' },
+                    { value: 'oldest', label: 'Oldest First' },
+                    { value: 'highest', label: 'Highest Revenue' },
+                    { value: 'lowest', label: 'Lowest Revenue' },
+                  ] as const).map(opt => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setSortBy(opt.value)}
+                      className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-left transition-all ${
+                        sortBy === opt.value
+                          ? 'bg-green-400 text-black'
+                          : 'bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-white'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Main Content */}
@@ -298,7 +403,7 @@ export default function AdminDashboard() {
                       {/* Revenue */}
                       <td className="p-6">
                         <div className="flex items-center gap-1 font-black text-lg italic text-white">
-                          <DollarSign className="w-5 h-5 text-green-400" />
+                          <span className="text-green-400 font-black">₱</span>
                           {booking.totalPrice}
                         </div>
                       </td>
@@ -374,7 +479,7 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                       <div className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">Revenue</div>
-                      <div className="text-sm font-black italic text-green-400">${booking.totalPrice}</div>
+                      <div className="text-sm font-black italic text-green-400">₱{booking.totalPrice}</div>
                     </div>
                   </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
-import { Star, Award, Users, Mail, Phone, Zap, TrendingUp, CheckCircle2, ChevronLeft, ChevronRight, User, Target, Flame, Crown, Briefcase, Calendar, Clock } from 'lucide-react';
+import { Zap, ChevronLeft, ChevronRight, Calendar, Clock } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, addDays, isBefore, startOfDay, getDay } from 'date-fns';
 import Navbar from '@/components/Navbar';
@@ -155,14 +155,14 @@ export default function App() {
   };
 
   const sessionTypes = [
-    { name: 'Solo Session (Taguig)', duration: '+ Ballboy Required', price: '₱850/hr', priceAmount: '₱850', priceDetails: ['Per Hour'], rawPrice: 850, icon: User },
-    { name: 'Solo Session (QC/Parañaque)', duration: '+ Ballboy Required', price: '₱1000/hr', priceAmount: '₱1000', priceDetails: ['Per Hour'], rawPrice: 1000, icon: Target },
-    { name: '2-3 Pax Group', duration: '+ Ballboy Required', price: '₱500/hd/hr', priceAmount: '₱500', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 500, icon: Users },
-    { name: '4-5 Pax Group', duration: 'Free Ballboy (if 5 pax)', price: '₱400/hd/hr', priceAmount: '₱400', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 400, icon: Flame },
-    { name: '6-7 Pax Group', duration: 'Free Ballboy', price: '₱350/hd/hr', priceAmount: '₱350', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 350, icon: Star },
-    { name: '8-10 Pax Group', duration: 'Free Ballboy', price: '₱300/hd/hr', priceAmount: '₱300', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 300, icon: Crown },
-    { name: 'Corporate', duration: 'Hourly Rate', price: '₱2500/hr', priceAmount: '₱2500', priceDetails: ['Per Hour'], rawPrice: 2500, icon: Briefcase },
-    { name: 'Saturday Group Session', duration: '2 Hours • All In', price: '₱1000/hd/2hr', priceAmount: '₱1000', priceDetails: ['Per Head', 'Per 2 Hours'], rawPrice: 1000, icon: Calendar },
+    { name: 'Solo Session (Taguig)', duration: '+ Ballboy Required', price: '₱850/hr', priceAmount: '₱850', priceDetails: ['Per Hour'], rawPrice: 850 },
+    { name: 'Solo Session (QC/Parañaque)', duration: '+ Ballboy Required', price: '₱1000/hr', priceAmount: '₱1000', priceDetails: ['Per Hour'], rawPrice: 1000 },
+    { name: '2-3 Pax Group', duration: '+ Ballboy Required', price: '₱500/hd/hr', priceAmount: '₱500', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 500 },
+    { name: '4-5 Pax Group', duration: 'Free Ballboy (if 5 pax)', price: '₱400/hd/hr', priceAmount: '₱400', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 400 },
+    { name: '6-7 Pax Group', duration: 'Free Ballboy', price: '₱350/hd/hr', priceAmount: '₱350', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 350 },
+    { name: '8-10 Pax Group', duration: 'Free Ballboy', price: '₱300/hd/hr', priceAmount: '₱300', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 300 },
+    { name: 'Corporate', duration: 'Hourly Rate', price: '₱2500/hr', priceAmount: '₱2500', priceDetails: ['Per Hour'], rawPrice: 2500 },
+    { name: 'Saturday Group Session', duration: '2 Hours • All In', price: '₱1000/hd/2hr', priceAmount: '₱1000', priceDetails: ['Per Head', 'Per 2 Hours'], rawPrice: 1000 },
   ];
 
   const stats = [
@@ -819,52 +819,75 @@ export default function App() {
               <div className="space-y-5 py-2">
                 <h3 className="text-2xl font-black text-white tracking-tighter text-center mb-4">1. CHOOSE YOUR PATH</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {sessionTypes.map((session) => {
-                    const Icon = session.icon;
+                  {sessionTypes.map((session, idx) => {
+                    const isSelected = sessionType === session.name;
                     return (
                       <button
                         key={session.name}
                         onClick={() => {
                           setSessionType(session.name);
-                          // Reset date/time when switching session types
                           setSelectedDate('');
                           setSelectedTime('');
-                          // Auto-set duration for Saturday Group Session
                           if (session.name === 'Saturday Group Session') {
                             setSelectedDuration(2);
                           } else {
                             setSelectedDuration(1);
                           }
                         }}
-                        className={`group relative p-5 sm:p-6 rounded-3xl transition-all duration-500 overflow-hidden text-left flex flex-col h-full ${sessionType === session.name
-                          ? 'bg-gradient-to-br from-green-400/20 to-green-400/5 border-2 border-green-400 shadow-[0_0_50px_rgba(74,222,128,0.15)]'
-                          : 'bg-zinc-900/40 border border-zinc-800 hover:border-green-400/40 hover:bg-zinc-900/60'
-                          }`}
+                        className={`group relative p-4 sm:p-5 rounded-2xl transition-all duration-500 text-left flex flex-col h-full overflow-hidden ${
+                          isSelected
+                            ? 'bg-zinc-900 border-2 border-green-400'
+                            : 'bg-zinc-900/60 border border-zinc-800 hover:border-green-400/30'
+                        }`}
+                        style={isSelected ? {
+                          boxShadow: '0 0 8px rgba(74,222,128,0.6), 0 0 20px rgba(74,222,128,0.35), 0 0 45px rgba(74,222,128,0.15)'
+                        } : {}}
                       >
-                        <div className={`inline-flex items-center justify-center w-12 h-12 rounded-2xl mb-4 transition-all duration-500 ${sessionType === session.name
-                          ? 'bg-green-400 text-black scale-110 rotate-3'
-                          : 'bg-zinc-800/50 text-green-400 group-hover:bg-green-400 group-hover:text-black group-hover:scale-110'
-                          }`}>
-                          <Icon className="w-6 h-6" />
-                        </div>
-                        <h4 className={`text-lg font-black mb-1 tracking-tight transition-colors ${sessionType === session.name ? 'text-white' : 'text-zinc-200'}`}>{session.name}</h4>
-                        <p className="text-zinc-500 font-bold text-[10px] mb-3 uppercase tracking-widest">{session.duration}</p>
-                        <div className="flex flex-col gap-1 mt-auto pt-2 min-w-0">
-                          <span className="text-2xl font-black text-green-400 tracking-tighter italic leading-none">{session.priceAmount}</span>
-                          <div className="flex flex-col gap-0.5">
-                            {session.priceDetails.map((detail) => (
-                              <span key={detail} className="text-[9px] font-black text-zinc-500 uppercase tracking-widest leading-tight">— {detail}</span>
-                            ))}
-                          </div>
+                        {/* Large number display */}
+                        <div className="relative mb-3 overflow-hidden">
+                          <span
+                            className={`block font-black leading-none tracking-tighter select-none transition-all duration-500 ${
+                              isSelected ? 'text-green-400' : 'text-zinc-700 group-hover:text-zinc-600'
+                            }`}
+                            style={{
+                              fontSize: 'clamp(3rem, 5vw, 4.5rem)',
+                              fontFamily: 'var(--font-orbitron), monospace',
+                              fontVariantNumeric: 'tabular-nums',
+                              filter: isSelected
+                                ? 'drop-shadow(0 0 3px rgba(74,222,128,0.6)) drop-shadow(0 0 8px rgba(74,222,128,0.3)) drop-shadow(0 0 16px rgba(74,222,128,0.12))'
+                                : 'none',
+                            }}
+                          >
+                            {String(idx + 1).padStart(2, '0')}
+                          </span>
+                          {/* Subtle bottom fade on the number */}
+                          <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-zinc-900 to-transparent pointer-events-none" />
                         </div>
 
-                        {sessionType === session.name && (
-                          <div className="absolute top-4 right-4">
-                            <div className="w-6 h-6 rounded-full bg-green-400 flex items-center justify-center shadow-[0_0_20px_rgba(74,222,128,0.5)]">
-                              <CheckCircle2 className="w-4 h-4 text-black" strokeWidth={3} />
-                            </div>
-                          </div>
-                        )}
+                        {/* Session name */}
+                        <h4 className={`text-sm font-black mb-1 tracking-tight transition-colors leading-tight ${isSelected ? 'text-white' : 'text-zinc-300 group-hover:text-white'}`}>
+                          {session.name}
+                        </h4>
+
+                        {/* Duration tag */}
+                        <p className={`text-[9px] font-black uppercase tracking-widest mb-3 transition-colors ${isSelected ? 'text-green-400/70' : 'text-zinc-600'}`}>
+                          {session.duration}
+                        </p>
+
+                        {/* Price */}
+                        <div className="flex flex-col gap-0.5 mt-auto">
+                          <span
+                            className={`font-black tracking-tighter italic leading-none transition-all duration-500 ${isSelected ? 'text-green-400' : 'text-green-400/70'}`}
+                            style={{ fontSize: 'clamp(1.25rem, 2vw, 1.6rem)' }}
+                          >
+                            {session.priceAmount}
+                          </span>
+                          {session.priceDetails.map((detail) => (
+                            <span key={detail} className={`text-[9px] font-black uppercase tracking-widest leading-tight transition-colors ${isSelected ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                              — {detail}
+                            </span>
+                          ))}
+                        </div>
                       </button>
                     );
                   })}
