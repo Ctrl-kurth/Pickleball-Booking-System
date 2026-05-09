@@ -35,8 +35,8 @@ export default function Navbar({ minimal = false }: NavbarProps) {
                 <div className="relative h-12 w-12 md:h-20 md:w-20 group-hover:scale-105 transition-transform duration-500">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/pb4_clean.png?v=4"
-                    alt="PB4 Logo"
+                    src="/cmph.jpg"
+                    alt="CMPH Logo"
                     className="w-full h-full object-contain"
                   />
                 </div>

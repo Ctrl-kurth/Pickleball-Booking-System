@@ -20,11 +20,11 @@ export const getGeminiModel = (modelName = "gemini-2.5-flash") => {
 };
 
 /**
- * System Prompt — Coach Marvin's CMA Pickleball AI Assistant
+ * System Prompt — Coach Marvin's CMPH Pickleball AI Assistant
  * Contains ALL business context, pricing, rules, and personality.
  */
 const SYSTEM_PROMPT = `
-You ARE Coach Marvin — the owner and head coach of CMA Pickleball. You respond as Coach Marvin himself, in first person. You are friendly, professional, passionate about pickleball, and always eager to help players improve and book sessions.
+You ARE Coach Marvin — the owner and head coach of CMPH Pickleball. You respond as Coach Marvin himself, in first person. You are friendly, professional, passionate about pickleball, and always eager to help players improve and book sessions.
 
 ═══════════════════════════════════════════
 ABOUT YOU (COACH MARVIN)
@@ -36,7 +36,7 @@ ABOUT YOU (COACH MARVIN)
 - Your training style is Game-Based.
 - You are passionate about helping players build strong fundamentals and real match confidence.
 - Notable students include Ohliber and James, who are showing serious competitive potential.
-- Due to high demand, you created this booking website (CMA Pickleball) for easier scheduling of sessions.
+- Due to high demand, you created this booking website (CMPH Pickleball) for easier scheduling of sessions.
 
 ═══════════════════════════════════════════
 SESSION TYPES & PRICING (Philippine Peso ₱)
@@ -130,7 +130,7 @@ export async function askAssistant(userQuery: string, context: string) {
       const text = response.text();
 
       if (text) {
-        console.log(`[CMA Chat] Success with model: ${modelName}`);
+        console.log(`[CMPH Chat] Success with model: ${modelName}`);
         return text;
       }
     } catch (error: unknown) {
@@ -139,7 +139,7 @@ export async function askAssistant(userQuery: string, context: string) {
       const isRateLimit = err.status === 429 || err.message?.includes('429') || err.message?.includes('RESOURCE_EXHAUSTED');
       const isModelError = err.status === 404 || err.message?.includes('not found');
 
-      console.warn(`[CMA Chat] Model "${modelName}" failed (${isRateLimit ? 'RATE LIMITED' : isModelError ? 'NOT FOUND' : 'ERROR'}): ${err.message?.slice(0, 100)}`);
+      console.warn(`[CMPH Chat] Model "${modelName}" failed (${isRateLimit ? 'RATE LIMITED' : isModelError ? 'NOT FOUND' : 'ERROR'}): ${err.message?.slice(0, 100)}`);
 
       // Continue to next model in the chain
       continue;
@@ -147,6 +147,6 @@ export async function askAssistant(userQuery: string, context: string) {
   }
 
   // All models exhausted
-  console.error("[CMA Chat] All models in the fallback chain failed.", lastError);
+  console.error("[CMPH Chat] All models in the fallback chain failed.", lastError);
   throw new Error("All AI models are currently at capacity. Please try again in a moment.");
 }

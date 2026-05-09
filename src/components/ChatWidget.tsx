@@ -113,7 +113,7 @@ export default function ChatWidget() {
                   <PickleballIcon className="w-5 h-5 text-green-400" />
                 </div>
                 <div>
-                  <h3 className="text-white font-black uppercase tracking-widest text-sm">CMA Assistant</h3>
+                  <h3 className="text-white font-black uppercase tracking-widest text-sm">CMPH Assistant</h3>
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                     <span className="text-[10px] text-green-400/80 uppercase font-bold tracking-widest">Online</span>

@@ -52,7 +52,6 @@ function ExplodablePaddle({
   const group = useRef<THREE.Group>(null);
 
   // Textures
-  const logoTexture = useTexture('/pb4_clean.png');
   const carbonTexture = useTexture(carbonDataURL, (t) => {
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
     t.repeat.set(4, 4);
@@ -187,10 +186,6 @@ function ExplodablePaddle({
           <mesh position={[0, 0, 0]}>
             <extrudeGeometry args={[paddleShape, { depth: 0.01, bevelEnabled: false, curveSegments: 8 }]} />
             <meshPhysicalMaterial color="#fff" map={carbonTexture} metalness={0.6} roughness={0.7} />
-          </mesh>
-          <mesh position={[0, 0, 0.015]}>
-            <planeGeometry args={[1.8, 1.8]} />
-            <meshBasicMaterial map={logoTexture} transparent opacity={0.9} depthWrite={false} />
           </mesh>
           {isExploded && (
             <>

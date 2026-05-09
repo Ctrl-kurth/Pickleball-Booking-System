@@ -697,12 +697,9 @@ export default function App() {
                   transition={{ duration: 0.3 }}
                   className="absolute -bottom-[5%] left-1/2 -translate-x-1/2 flex flex-col items-center text-center gap-3 w-80 pointer-events-none"
                 >
-                  <div className="inline-block px-4 py-1.5 bg-black/50 backdrop-blur-md border border-green-400/20 rounded-full text-green-400 text-[9px] font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(74,222,128,0.1)]">
-                    Coming Soon
-                  </div>
-                  <h2 className="text-2xl font-black text-white tracking-tighter italic uppercase drop-shadow-xl">Pro Series Paddle</h2>
+                  <h2 className="text-2xl font-black text-white tracking-tighter italic uppercase drop-shadow-xl">Performance Paddle</h2>
                   <p className="text-zinc-400 font-medium text-[11px] leading-relaxed italic drop-shadow-lg">
-                    Coach Marvin is currently designing his signature pickleball paddle. Click or tap the paddle to explore the prototype in 3D.
+                    Explore the anatomy of a high-performance pickleball paddle. Click or tap the paddle to rotate and explore the prototype in 3D.
                   </p>
                 </motion.div>
               </>
@@ -780,12 +777,9 @@ export default function App() {
         {isMobile && (
           <div className="w-full px-6 py-20 flex flex-col items-center bg-black border-b border-zinc-900 block lg:hidden">
             <div className="text-center mb-8 space-y-3">
-              <div className="inline-block px-4 py-1 bg-green-400/10 border border-green-400/20 rounded-full text-green-400 text-[10px] font-black uppercase tracking-widest">
-                Coming Soon
-              </div>
-              <h2 className="text-4xl font-black text-white tracking-tighter italic uppercase">Pro Series Paddle</h2>
+              <h2 className="text-4xl font-black text-white tracking-tighter italic uppercase">Performance Paddle</h2>
               <p className="text-zinc-500 font-medium text-sm max-w-sm mx-auto">
-                Coach Marvin is currently designing his signature pickleball paddle. Tap to explore the prototype in 3D.
+                Explore the anatomy of a high-performance pickleball paddle. Tap to rotate and explore the prototype in 3D.
               </p>
             </div>
 
@@ -1080,7 +1074,7 @@ export default function App() {
         <footer className="border-t border-zinc-900 bg-black py-12">
           <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-zinc-500 text-sm font-bold">
-              © 2026 CMA Pickleball. All rights reserved.
+              © 2026 CMPH Pickleball. All rights reserved.
             </div>
             <div className="flex gap-8">
               <a href="/login" className="text-zinc-800 hover:text-zinc-600 text-[10px] font-black uppercase tracking-widest transition-colors">

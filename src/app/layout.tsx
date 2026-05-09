@@ -21,8 +21,8 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  title: "CMA | Pickleball Coaching System",
-  description: "Master the court with CMA. Book elite pickleball instructors with real-time availability and AI-powered performance insights",
+  title: "CMPH | Pickleball Coaching System",
+  description: "Master the court with CMPH. Book elite pickleball instructors with real-time availability and AI-powered performance insights",
 };
 
 export default function RootLayout({

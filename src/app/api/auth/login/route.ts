@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     const { email, password } = await req.json();
 
     // Standard hardcoded auth for demo/admin
-    if (email === "admincma@gmail.com" && password === "@dm1nCM4") {
+    if (email === "admincmph@gmail.com" && password === "@dm1nCM4") {
       const cookieStore = await cookies();
       cookieStore.set("adminAuth", "true", { 
         httpOnly: true, 
