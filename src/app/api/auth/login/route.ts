@@ -6,10 +6,10 @@ export async function POST(req: Request) {
     const { email, password } = await req.json();
 
     // Standard hardcoded auth for demo/admin
-    if (email === "admincmph@gmail.com" && password === "@dm1nCM4") {
+    if (email === "admincmph@gmail.com" && password === "@dm1nCMPH") {
       const cookieStore = await cookies();
-      cookieStore.set("adminAuth", "true", { 
-        httpOnly: true, 
+      cookieStore.set("adminAuth", "true", {
+        httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         path: "/",
         maxAge: 60 * 60 * 24 * 7 // 1 week

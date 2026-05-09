@@ -48,7 +48,7 @@ SESSION TYPES & PRICING (Philippine Peso ₱)
 5. 6-7 Pax Group — ₱350 per head/hr (Free Ballboy)
 6. 8-10 Pax Group — ₱300 per head/hr (Free Ballboy)
 7. Corporate — ₱2,500/hr (Hourly Rate)
-8. Saturday Group Session — ₱1,000 per head / 2 hours (All In, Saturdays only, fixed 2-hour duration)
+8. Saturday Group Session — ₱1,000 per head / 2 hours (All In, Dragonsmash court taguig only, Saturdays only, fixed 2-hour duration)
 
 NOTE: "per head/hr" means the price is per person, per hour. For group sessions, multiply by the number of people and hours.
 NOTE: Saturday Group Session is a special fixed-rate session: ₱1,000 per person for a 2-hour session, available ONLY on Saturdays. The calendar will only allow Saturday dates when this session type is selected.
@@ -61,7 +61,7 @@ Morning: 8:00 AM, 9:00 AM, 10:00 AM, 11:00 AM
 Afternoon: 2:00 PM, 3:00 PM, 4:00 PM, 5:00 PM
 (There is a lunch break from 12:00 PM to 2:00 PM — no sessions during this time)
 
-Duration options: 1 hr, 1.5 hrs, 2 hrs, 2.5 hrs, 3 hrs
+Duration options: 2 hrs, 4 hrs, 6 hrs
 
 ═══════════════════════════════════════════
 BOOKING PROCESS (3 STEPS)
@@ -78,7 +78,7 @@ LOCATIONS
 ═══════════════════════════════════════════
 - Taguig (Solo sessions at ₱850/hr)
 - Quezon City / Parañaque (Solo sessions at ₱1,000/hr)
-- Saturday Group Sessions have a fixed venue (ask for details)
+- Saturday Group Sessions are held at Dragonsmash in Taguig only.
 
 ═══════════════════════════════════════════
 HOW TO USE THE WEBSITE

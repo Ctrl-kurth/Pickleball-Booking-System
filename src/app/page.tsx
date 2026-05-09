@@ -52,7 +52,7 @@ const SESSION_TYPES = [
   { name: '6-7 Pax Group', duration: 'Free Ballboy', price: '₱350/hd/hr', priceAmount: '₱350', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 350 },
   { name: '8-10 Pax Group', duration: 'Free Ballboy', price: '₱300/hd/hr', priceAmount: '₱300', priceDetails: ['Per Head', 'Per Hour'], rawPrice: 300 },
   { name: 'Corporate', duration: 'Hourly Rate', price: '₱2500/hr', priceAmount: '₱2500', priceDetails: ['Per Hour'], rawPrice: 2500 },
-  { name: 'Saturday Group Session', duration: '2 Hours • All In', price: '₱1000/hd/2hr', priceAmount: '₱1000', priceDetails: ['Per Head', 'Per 2 Hours'], rawPrice: 1000 },
+  { name: 'Saturday Group Session', duration: '2 Hours • All In • Dragonsmash court taguig only', price: '₱1000/hd/2hr', priceAmount: '₱1000', priceDetails: ['Per Head', 'Per 2 Hours'], rawPrice: 1000 },
 ];
 
 // Static stats — hoisted to module level to prevent recreation on every render
@@ -160,7 +160,8 @@ export default function App() {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [sessionType, setSessionType] = useState<string>('');
-  const [selectedDuration, setSelectedDuration] = useState<number>(1);
+  const [selectedDuration, setSelectedDuration] = useState<number>(2);
+  const [selectedLocation, setSelectedLocation] = useState<string>('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -297,6 +298,7 @@ export default function App() {
           startTime,
           endTime,
           totalPrice: totalPrice,
+          location: selectedLocation,
         }),
       });
 
@@ -501,7 +503,7 @@ export default function App() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2">
-                  {[1, 1.5, 2, 2.5, 3].map((dur) => (
+                  {[2, 4, 6].map((dur) => (
                     <button
                       type="button"
                       key={dur}
@@ -569,7 +571,7 @@ export default function App() {
   const buttonText = currentStep === 3 ? (isSubmitting ? 'INITIATING...' : 'SECURE SPOT') : 'CONTINUE';
   const isNextDisabled = Boolean(
     isSubmitting ||
-    (currentStep === 1 && !sessionType) ||
+    (currentStep === 1 && (!sessionType || (['2-3 Pax Group', '4-5 Pax Group', '6-7 Pax Group', '8-10 Pax Group'].includes(sessionType) && !selectedLocation))) ||
     (currentStep === 2 && (!sessionType || !selectedDate || !selectedTime)) ||
     (currentStep === 3 && (!sessionType || !selectedDate || !selectedTime || !firstName || !lastName || !email))
   );
@@ -909,11 +911,8 @@ export default function App() {
                           setSessionType(session.name);
                           setSelectedDate('');
                           setSelectedTime('');
-                          if (session.name === 'Saturday Group Session') {
-                            setSelectedDuration(2);
-                          } else {
-                            setSelectedDuration(1);
-                          }
+                          setSelectedDuration(2);
+                          setSelectedLocation('');
                         }}
                         className={`group relative p-3 sm:p-4 rounded-xl transition-all duration-500 text-left flex flex-col h-full overflow-hidden ${
                           isSelected
@@ -973,6 +972,29 @@ export default function App() {
                     );
                   })}
                 </div>
+                
+                {/* Location Selection for Group Sessions */}
+                {['2-3 Pax Group', '4-5 Pax Group', '6-7 Pax Group', '8-10 Pax Group'].includes(sessionType) && (
+                  <div className="mt-6 p-6 bg-zinc-900/60 border border-zinc-800 rounded-2xl space-y-4">
+                    <h4 className="text-sm font-black text-white uppercase tracking-widest text-center">Select Location</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {['Taguig', 'QC / Parañaque'].map((loc) => (
+                        <button
+                          key={loc}
+                          type="button"
+                          onClick={() => setSelectedLocation(loc)}
+                          className={`py-3 px-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
+                            selectedLocation === loc
+                              ? 'bg-green-400 text-black shadow-[0_0_20px_rgba(74,222,128,0.3)]'
+                              : 'bg-zinc-800/50 border border-zinc-800 text-zinc-400 hover:border-green-400/40'
+                          }`}
+                        >
+                          {loc}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </Step>
 
