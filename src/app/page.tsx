@@ -467,18 +467,39 @@ export default function App() {
             <div className="space-y-3">
               <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Slot</label>
               
-              {selectedDate && availableTimes.some(time => checkSlotStatus(selectedDate, time, 1) === 'travel') && (
-                <div className="mb-4 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 flex items-start gap-2">
-                  <div className="mt-0.5">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+              {(() => {
+                if (!selectedDate) return null;
+                const locationsToday = Array.from(new Set(bookedSlots.filter(b => {
+                  if (!b.location) return false;
+                  const bDate = format(new Date(b.startTime), 'yyyy-MM-dd');
+                  return bDate === selectedDate;
+                }).map(b => b.location)));
+
+                if (locationsToday.length === 0) return null;
+                
+                let intendedLocation = selectedLocation;
+                if (sessionType === 'Solo Session (Taguig)' || sessionType === 'Saturday Group Session') intendedLocation = 'Taguig';
+                else if (sessionType === 'Solo Session (QC/Parañaque)') intendedLocation = 'QC / Parañaque';
+                
+                const hasDifferentLocation = intendedLocation 
+                  ? locationsToday.some(loc => loc !== intendedLocation)
+                  : true;
+
+                if (!hasDifferentLocation) return null;
+
+                return (
+                  <div className="mb-4 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 flex items-start gap-2">
+                    <div className="mt-0.5">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div className="text-[10px] leading-relaxed uppercase font-bold tracking-wider">
+                      Coach Marvin has sessions in <span className="text-white">{locationsToday.join(' and ')}</span> today. Please note that booking in a different city will require a 1-hour travel buffer.
+                    </div>
                   </div>
-                  <div className="text-[10px] leading-relaxed uppercase font-bold tracking-wider">
-                    Coach Marvin has sessions in a different location today. A 1-hour travel buffer is automatically applied to avoid overlap.
-                  </div>
-                </div>
-              )}
+                );
+              })()}
 
               <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-2 gap-2">
                 {availableTimes.map((time) => {

@@ -287,22 +287,33 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
                 </div>
 
                 <div className="p-4 sm:p-6">
-                  {selectedDate && availableTimes.some(time => checkSlotStatus(selectedDate, time, 1) === 'travel') && !isLoading && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mb-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 flex items-start gap-2 sm:gap-3"
-                    >
-                      <div className="mt-0.5 sm:mt-1">
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                      <div className="text-[10px] sm:text-xs leading-relaxed uppercase font-black tracking-widest">
-                        Coach Marvin has sessions in a different location today. A 1-hour travel buffer is automatically applied to avoid overlap.
-                      </div>
-                    </motion.div>
-                  )}
+                  {(() => {
+                    if (isLoading || !selectedDate) return null;
+                    const locationsToday = Array.from(new Set(bookedSlots.filter(b => {
+                      if (!b.location) return false;
+                      const bDate = format(new Date(b.startTime), 'yyyy-MM-dd');
+                      return bDate === selectedDate;
+                    }).map(b => b.location)));
+
+                    if (locationsToday.length === 0) return null;
+
+                    return (
+                      <motion.div 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 flex items-start gap-2 sm:gap-3"
+                      >
+                        <div className="mt-0.5 sm:mt-1">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div className="text-[10px] sm:text-xs leading-relaxed uppercase font-black tracking-widest">
+                          Coach Marvin has sessions in <span className="text-white">{locationsToday.join(' and ')}</span> today. Please note that booking in a different city will require a 1-hour travel buffer.
+                        </div>
+                      </motion.div>
+                    );
+                  })()}
                   {isLoading ? (
                     <div className="flex flex-col items-center justify-center h-40 sm:h-64 space-y-4 sm:space-y-6">
                       <div className="w-8 h-8 sm:w-10 sm:h-10 border-4 border-green-400/20 border-t-green-400 rounded-full animate-spin" />
