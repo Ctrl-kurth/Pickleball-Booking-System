@@ -201,7 +201,7 @@ export default function AdminDashboard() {
         <div className="flex items-center gap-6">
           <Link href="/" className="relative h-16 w-16 overflow-hidden rounded-xl border border-white/10 hover:border-green-400/50 transition-colors">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pb4_clean.png?v=4" alt="PB4 Logo" className="w-full h-full object-contain" />
+            <img src="/cmph.jpg" alt="CMPH Logo" className="w-full h-full object-contain" />
           </Link>
           <div>
             <h1 className="text-4xl font-black tracking-tighter italic flex items-center gap-3 uppercase">

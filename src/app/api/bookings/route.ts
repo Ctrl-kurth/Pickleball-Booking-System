@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import dbConnect from "@/lib/mongodb";
 import { Booking } from "@/models/Booking";
 import "@/models/Coach"; // Initialize Coach schema for population
@@ -70,7 +71,24 @@ export async function GET() {
   try {
     await dbConnect();
     const bookings = await Booking.find({}).populate("coachId", "name");
-    return NextResponse.json(bookings);
+    
+    // Check authentication
+    const cookieStore = await cookies();
+    const adminAuth = cookieStore.get("adminAuth")?.value;
+    
+    if (adminAuth === "true") {
+      return NextResponse.json(bookings);
+    } else {
+      // Return safe data for public endpoints
+      const safeBookings = bookings.map(b => ({
+        _id: b._id,
+        startTime: b.startTime,
+        endTime: b.endTime,
+        status: b.status,
+        coachId: b.coachId
+      }));
+      return NextResponse.json(safeBookings);
+    }
   } catch (error: unknown) {
     console.error("GET Bookings Error:", error);
     const err = error as { message?: string };
