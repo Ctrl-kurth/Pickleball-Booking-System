@@ -10,7 +10,7 @@ import mongoose from "mongoose";
  */
 export async function POST(req: Request) {
   try {
-    const { coachId, userId, clientName, clientEmail, startTime, endTime, totalPrice } = await req.json();
+    const { coachId, userId, clientName, clientEmail, startTime, endTime, totalPrice, location } = await req.json();
 
     if (!coachId || !userId || !clientName || !clientEmail || !startTime || !endTime) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -51,6 +51,7 @@ export async function POST(req: Request) {
       totalPrice,
       status: "pending", 
       paymentStatus: "unpaid",
+      location,
     });
 
     return NextResponse.json(newBooking, { status: 201 });
@@ -85,7 +86,8 @@ export async function GET() {
         startTime: b.startTime,
         endTime: b.endTime,
         status: b.status,
-        coachId: b.coachId
+        coachId: b.coachId,
+        location: b.location
       }));
       return NextResponse.json(safeBookings);
     }

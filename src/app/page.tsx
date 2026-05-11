@@ -21,6 +21,7 @@ interface Booking {
   status: "pending" | "confirmed" | "cancelled" | "completed";
   totalPrice: number;
   systemMessage?: string;
+  location?: string;
 }
 
 // Helper for cross-browser date parsing (especially Safari on iOS)
@@ -170,7 +171,7 @@ export default function App() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isPaddleExploded, setIsPaddleExploded] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [bookedSlots, setBookedSlots] = useState<{ startTime: string, endTime: string }[]>([]);
+  const [bookedSlots, setBookedSlots] = useState<{ startTime: string, endTime: string, location?: string }[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [isScrolledPastHero, setIsScrolledPastHero] = useState(false);
   const [showMobileSlots, setShowMobileSlots] = useState(false);
@@ -227,7 +228,7 @@ export default function App() {
     }
   }, [currentStep, isMobile]);
 
-  useEffect(() => {
+  const fetchBookings = useCallback(() => {
     fetch('/api/bookings')
       .then(res => res.json())
       .then(data => {
@@ -235,12 +236,19 @@ export default function App() {
           const active = data.filter((b: Booking) => b.status !== 'cancelled');
           setBookedSlots(active.map((b: Booking) => ({
             startTime: b.startTime,
-            endTime: b.endTime
+            endTime: b.endTime,
+            location: b.location
           })));
         }
       })
       .catch(console.error);
   }, []);
+
+  useEffect(() => {
+    fetchBookings();
+    const interval = setInterval(fetchBookings, 10000);
+    return () => clearInterval(interval);
+  }, [fetchBookings]);
 
   // Lock scroll when paddle is exploded
   useEffect(() => {
@@ -254,21 +262,40 @@ export default function App() {
 
   const availableTimes = AVAILABLE_TIMES;
 
-  const checkSlotBooked = useCallback((dateString: string, timeString: string, durationInHours: number) => {
-    if (!dateString) return false;
+  const checkSlotStatus = useCallback((dateString: string, timeString: string, durationInHours: number) => {
+    if (!dateString) return 'available';
     const start = createDateFromStrings(dateString, timeString);
-    if (isNaN(start.getTime())) return false;
+    if (isNaN(start.getTime())) return 'available';
     const end = new Date(start.getTime() + durationInHours * 60 * 60 * 1000);
-    return bookedSlots.some(booking => {
+    
+    let intendedLocation = selectedLocation;
+    if (sessionType === 'Solo Session (Taguig)' || sessionType === 'Saturday Group Session') intendedLocation = 'Taguig';
+    else if (sessionType === 'Solo Session (QC/Parañaque)') intendedLocation = 'QC / Parañaque';
+
+    return bookedSlots.reduce<'available' | 'booked' | 'travel'>((acc, booking) => {
+      if (acc === 'booked') return acc;
+      
       const bStart = new Date(booking.startTime);
       const bEnd = new Date(booking.endTime);
-      return start < bEnd && end > bStart;
-    });
-  }, [bookedSlots]);
+      
+      if (start < bEnd && end > bStart) {
+        return 'booked';
+      }
+      
+      if (intendedLocation && booking.location && booking.location !== intendedLocation) {
+        const paddedStart = new Date(bStart.getTime() - 60 * 60 * 1000);
+        const paddedEnd = new Date(bEnd.getTime() + 60 * 60 * 1000);
+        if (start < paddedEnd && end > paddedStart) {
+          return 'travel';
+        }
+      }
+      return acc;
+    }, 'available');
+  }, [bookedSlots, selectedLocation, sessionType]);
 
   const isDayFullyBooked = useCallback((dateString: string) => {
-    return AVAILABLE_TIMES.every(time => checkSlotBooked(dateString, time, 1));
-  }, [checkSlotBooked]);
+    return AVAILABLE_TIMES.every(time => checkSlotStatus(dateString, time, 1) === 'booked');
+  }, [checkSlotStatus]);
 
   // Use module-level SESSION_TYPES constant — no recreation on re-render
   const sessionTypes = SESSION_TYPES;
@@ -439,27 +466,46 @@ export default function App() {
           <div className="p-3 sm:p-4 md:pt-1 overflow-y-auto h-[calc(100%-80px)] md:h-auto">
             <div className="space-y-3">
               <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">Select Slot</label>
+              
+              {selectedDate && availableTimes.some(time => checkSlotStatus(selectedDate, time, 1) === 'travel') && (
+                <div className="mb-4 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 flex items-start gap-2">
+                  <div className="mt-0.5">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="text-[10px] leading-relaxed uppercase font-bold tracking-wider">
+                    Coach Marvin has sessions in a different location today. A 1-hour travel buffer is automatically applied to avoid overlap.
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-2 gap-2">
                 {availableTimes.map((time) => {
                   const durationToUse = sessionType.includes('Package') ? 1 : selectedDuration;
-                  const isBooked = selectedDate ? checkSlotBooked(selectedDate, time, durationToUse) : false;
+                  const slotStatus = selectedDate ? checkSlotStatus(selectedDate, time, durationToUse) : 'available';
+                  const isBooked = slotStatus === 'booked';
+                  const isTravel = slotStatus === 'travel';
+                  const isUnavailable = isBooked || isTravel;
+                  
                   return (
                     <button
                       type="button"
                       key={time}
-                      disabled={isBooked || !selectedDate}
+                      disabled={isUnavailable || !selectedDate}
                       onClick={() => {
                         setSelectedTime(time);
                         setShowMobileDuration(true);
                       }}
-                      className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs ${isBooked
-                        ? 'bg-zinc-800/20 border border-zinc-800 text-zinc-600 opacity-50 cursor-not-allowed line-through'
+                      className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs ${isUnavailable
+                        ? 'bg-zinc-800/20 border border-zinc-800 text-zinc-600 opacity-50 cursor-not-allowed line-through flex flex-col items-center justify-center'
                         : selectedTime === time
-                          ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
-                          : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
+                          ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic flex flex-col items-center justify-center'
+                          : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800 flex flex-col items-center justify-center'
                         }`}
                     >
-                      {time}
+                      <span>{time}</span>
+                      {isTravel && <span className="text-[8px] text-yellow-500/80 leading-none mt-1">1HR TRAVEL</span>}
                     </button>
                   );
                 })}
@@ -503,19 +549,25 @@ export default function App() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2">
-                  {[2, 4, 6].map((dur) => (
-                    <button
-                      type="button"
-                      key={dur}
-                      onClick={() => setSelectedDuration(dur)}
-                      className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs md:text-sm ${selectedDuration === dur
-                        ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic'
-                        : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800'
-                        }`}
-                    >
-                      {dur} {dur === 1 ? 'hr' : 'hrs'}
-                    </button>
-                  ))}
+                  {[2, 4, 6].map((dur) => {
+                    const isDurValid = selectedDate && selectedTime ? checkSlotStatus(selectedDate, selectedTime, dur) !== 'booked' && checkSlotStatus(selectedDate, selectedTime, dur) !== 'travel' : true;
+                    return (
+                      <button
+                        type="button"
+                        key={dur}
+                        disabled={!isDurValid}
+                        onClick={() => setSelectedDuration(dur)}
+                        className={`min-h-[44px] py-3 px-2 rounded-xl font-black transition-all duration-300 transform text-xs md:text-sm ${!isDurValid
+                          ? 'bg-zinc-800/20 border border-zinc-800 text-zinc-600 opacity-50 cursor-not-allowed line-through flex flex-col items-center justify-center'
+                          : selectedDuration === dur
+                          ? 'bg-green-400 text-black shadow-[0_0_30px_rgba(74,222,128,0.4)] scale-105 italic flex flex-col items-center justify-center'
+                          : 'bg-zinc-800/30 border border-zinc-800 text-zinc-400 hover:border-green-400/40 hover:bg-zinc-800 flex flex-col items-center justify-center'
+                          }`}
+                      >
+                        {dur} {dur === 1 ? 'hr' : 'hrs'}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
               {isMobile && selectedTime && (
@@ -569,11 +621,14 @@ export default function App() {
   }
 
   const buttonText = currentStep === 3 ? (isSubmitting ? 'INITIATING...' : 'SECURE SPOT') : 'CONTINUE';
+  
+  const isSlotValid = selectedDate && selectedTime ? checkSlotStatus(selectedDate, selectedTime, sessionType.includes('Package') ? 1 : selectedDuration) === 'available' : false;
+
   const isNextDisabled = Boolean(
     isSubmitting ||
     (currentStep === 1 && (!sessionType || (['2-3 Pax Group', '4-5 Pax Group', '6-7 Pax Group', '8-10 Pax Group'].includes(sessionType) && !selectedLocation))) ||
-    (currentStep === 2 && (!sessionType || !selectedDate || !selectedTime)) ||
-    (currentStep === 3 && (!sessionType || !selectedDate || !selectedTime || !firstName || !lastName || !email))
+    (currentStep === 2 && (!sessionType || !selectedDate || !selectedTime || !isSlotValid)) ||
+    (currentStep === 3 && (!sessionType || !selectedDate || !selectedTime || !firstName || !lastName || !email || !isSlotValid))
   );
 
   return (

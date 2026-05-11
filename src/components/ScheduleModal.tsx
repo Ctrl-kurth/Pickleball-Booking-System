@@ -9,6 +9,7 @@ interface Booking {
   startTime: string;
   endTime: string;
   status: string;
+  location?: string;
 }
 
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,8 +17,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
-  const [bookedSlots, setBookedSlots] = useState<{ startTime: string, endTime: string }[]>([]);
+  const [bookedSlots, setBookedSlots] = useState<{ startTime: string, endTime: string, location?: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [viewLocation, setViewLocation] = useState<'Any' | 'Taguig' | 'QC / Parañaque'>('Any');
 
   const [mounted, setMounted] = useState(false);
 
@@ -44,7 +46,8 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
         const active = data.filter((b: Booking) => b.status !== 'cancelled');
         setBookedSlots(active.map((b: Booking) => ({
           startTime: b.startTime,
-          endTime: b.endTime
+          endTime: b.endTime,
+          location: b.location
         })));
       }
     } catch (error) {
@@ -72,21 +75,35 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
     return new Date(year, month - 1, day, hours, minutes);
   };
 
-  const checkSlotBooked = (dateString: string, timeString: string, durationInHours: number = 1) => {
-    if (!dateString) return false;
+  const checkSlotStatus = (dateString: string, timeString: string, durationInHours: number = 1) => {
+    if (!dateString) return 'available';
     const start = createDateFromStrings(dateString, timeString);
-    if (isNaN(start.getTime())) return false;
+    if (isNaN(start.getTime())) return 'available';
     const end = new Date(start.getTime() + durationInHours * 60 * 60 * 1000);
 
-    return bookedSlots.some(booking => {
+    return bookedSlots.reduce<'available' | 'booked' | 'travel'>((acc, booking) => {
+      if (acc === 'booked') return acc;
+      
       const bStart = new Date(booking.startTime);
       const bEnd = new Date(booking.endTime);
-      return start < bEnd && end > bStart;
-    });
+      
+      if (start < bEnd && end > bStart) {
+        return 'booked';
+      }
+      
+      if (viewLocation !== 'Any' && booking.location && booking.location !== viewLocation) {
+        const paddedStart = new Date(bStart.getTime() - 60 * 60 * 1000);
+        const paddedEnd = new Date(bEnd.getTime() + 60 * 60 * 1000);
+        if (start < paddedEnd && end > paddedStart) {
+          return 'travel';
+        }
+      }
+      return acc;
+    }, 'available');
   };
 
   const isDayFullyBooked = (dateString: string) => {
-    return availableTimes.every(time => checkSlotBooked(dateString, time, 1));
+    return availableTimes.every(time => checkSlotStatus(dateString, time, 1) === 'booked');
   };
 
   const monthStart = startOfMonth(currentMonth);
@@ -181,9 +198,22 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
                   <h2 className="text-xl sm:text-2xl md:text-4xl font-black text-white uppercase tracking-tighter italic leading-none mb-1">
                     Coach Marvin&apos;s Schedule
                   </h2>
-                  <p className="text-[8px] sm:text-[10px] md:text-xs text-green-400 font-bold tracking-[0.2em] uppercase">
-                    Real-Time Court Availability
-                  </p>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-2">
+                    <span className="text-[8px] sm:text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em]">View for Location:</span>
+                    <div className="flex bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
+                      {['Any', 'Taguig', 'QC / Parañaque'].map(loc => (
+                        <button
+                          key={loc}
+                          onClick={() => setViewLocation(loc as any)}
+                          className={`px-3 py-1.5 text-[8px] sm:text-[10px] font-black uppercase tracking-widest transition-colors ${
+                            viewLocation === loc ? 'bg-green-400 text-black' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                          }`}
+                        >
+                          {loc}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
               <button
@@ -257,6 +287,22 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
                 </div>
 
                 <div className="p-4 sm:p-6">
+                  {selectedDate && availableTimes.some(time => checkSlotStatus(selectedDate, time, 1) === 'travel') && !isLoading && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mb-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 flex items-start gap-2 sm:gap-3"
+                    >
+                      <div className="mt-0.5 sm:mt-1">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div className="text-[10px] sm:text-xs leading-relaxed uppercase font-black tracking-widest">
+                        Coach Marvin has sessions in a different location today. A 1-hour travel buffer is automatically applied to avoid overlap.
+                      </div>
+                    </motion.div>
+                  )}
                   {isLoading ? (
                     <div className="flex flex-col items-center justify-center h-40 sm:h-64 space-y-4 sm:space-y-6">
                       <div className="w-8 h-8 sm:w-10 sm:h-10 border-4 border-green-400/20 border-t-green-400 rounded-full animate-spin" />
@@ -274,7 +320,11 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
                       className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3"
                     >
                       {availableTimes.map((time) => {
-                        const isBooked = checkSlotBooked(selectedDate, time, 1);
+                        const slotStatus = checkSlotStatus(selectedDate, time, 1);
+                        const isBooked = slotStatus === 'booked';
+                        const isTravel = slotStatus === 'travel';
+                        const isUnavailable = isBooked || isTravel;
+                        
                         return (
                           <motion.div
                             variants={{
@@ -284,16 +334,22 @@ export default function ScheduleModal({ isOpen, onClose }: { isOpen: boolean; on
                             key={time}
                             className={`group flex items-center justify-between p-3 rounded-xl sm:rounded-2xl border transition-all duration-300 ${isBooked
                                 ? 'bg-red-500/5 border-red-500/10'
+                                : isTravel
+                                ? 'bg-yellow-500/5 border-yellow-500/20'
                                 : 'bg-zinc-900/40 border-zinc-800 hover:border-green-400 hover:bg-green-400/5 hover:shadow-[0_0_30px_rgba(74,222,128,0.15)] cursor-default'
                               }`}
                           >
-                            <span className={`text-sm sm:text-base font-black tracking-tight ${isBooked ? 'text-zinc-600 line-through' : 'text-zinc-200 group-hover:text-white transition-colors'}`}>
+                            <span className={`text-sm sm:text-base font-black tracking-tight ${isUnavailable ? 'text-zinc-600 line-through' : 'text-zinc-200 group-hover:text-white transition-colors'}`}>
                               {time}
                             </span>
 
                             {isBooked ? (
                               <span className="px-3 sm:px-4 py-1 sm:py-1.5 bg-red-500/10 text-red-500 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] rounded-full">
                                 Unavailable
+                              </span>
+                            ) : isTravel ? (
+                              <span className="px-3 sm:px-4 py-1 sm:py-1.5 bg-yellow-500/10 text-yellow-500 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] rounded-full">
+                                1hr Travel
                               </span>
                             ) : (
                               <span className="px-3 sm:px-4 py-1 sm:py-1.5 bg-green-400/10 text-green-400 border border-green-400/20 group-hover:border-green-400 group-hover:bg-green-400 text-[8px] sm:text-[10px] group-hover:text-black font-black uppercase tracking-[0.2em] rounded-full transition-all duration-300">

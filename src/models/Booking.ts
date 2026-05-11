@@ -12,6 +12,7 @@ export interface IBooking {
   paymentStatus: "unpaid" | "paid" | "refunded";
   notes?: string;
   systemMessage?: string;
+  location?: string;
 }
 
 const BookingSchema = new Schema<IBooking>(
@@ -35,6 +36,7 @@ const BookingSchema = new Schema<IBooking>(
     },
     notes: { type: String },
     systemMessage: { type: String },
+    location: { type: String },
   },
   { timestamps: true }
 );
