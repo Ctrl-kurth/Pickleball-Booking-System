@@ -676,7 +676,7 @@ export default function App() {
       </div>
 
       {/* Global Fixed 3D Paddle Overlay - Desktop Exclusive */}
-      {!isMobile && (
+      {false && !isMobile && (
         <div className={`fixed inset-0 pointer-events-none group hidden lg:flex items-center justify-center z-[100]`}>
           <AnimatePresence>
             {isPaddleExploded && (
@@ -856,7 +856,7 @@ export default function App() {
         </div>
 
         {/* Mobile Exclusive 3D Paddle Section - Coming Soon */}
-        {isMobile && (
+        {false && isMobile && (
           <div className="w-full px-6 py-20 flex flex-col items-center bg-black border-b border-zinc-900 block lg:hidden">
             <div className="text-center mb-8 space-y-3">
               <h2 className="text-4xl font-black text-white tracking-tighter italic uppercase">Performance Paddle</h2>
@@ -896,6 +896,44 @@ export default function App() {
             </div>
           </div>
         )}
+
+        {/* Video Highlights Section */}
+        <div className="w-full px-6 py-20 flex flex-col items-center bg-black border-b border-zinc-900">
+          <div className="text-center mb-12 space-y-3">
+            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter italic uppercase">Technique Highlights</h2>
+            <p className="text-zinc-500 font-medium text-sm md:text-base max-w-xl mx-auto">
+              Watch Coach Marvin in action. See the mechanics, the footwork, and the precision that we bring to every session.
+            </p>
+          </div>
+
+          <div className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            {[
+              "/Vid%20technique/SnapInsta.to_AQNQDFunWj4QQ_9evedsVhhePoWu9c_R0T3Xx7E1GXNxrmYnvg-yW7gwblRK4KXoEgJCYum4GBuT0K3TqUqJgKTGxy_HEpqjhP-TqQE.mp4",
+              "/Vid%20technique/SnapInsta.to_AQOmlpqn9zgk_h5BGttpLyXlyq_hGajoY6DDgh7AHTleegTMTR6f-s6UP8iGCaiA0fUS2w2B1CkG1jgdOXYkSd3Oqv_B6VsFjgBtcig.mp4",
+              "/Vid%20technique/SnapInsta.to_AQP_2pzlHjLiDnsHG7YnO9Wc6gnLLR5XawxQ_pWKEwWXtlhZb7TWrxYzuXh8InlTniSBmZ8enk2It_lN73eCquFz7ltqJp5YJYDRWew.mp4"
+            ].map((src, i) => (
+              <div key={i} className="relative aspect-[9/16] rounded-3xl overflow-hidden bg-zinc-900/40 border border-zinc-800 shadow-2xl group">
+                <video 
+                  src={src}
+                  className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 pointer-events-none" />
+                <div className="absolute bottom-6 left-6 right-6 pointer-events-none">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 rounded-full bg-green-400/20 flex items-center justify-center">
+                      <div className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse" />
+                    </div>
+                    <span className="text-green-400 font-black text-xs uppercase tracking-widest italic">Form & Flow</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div id="about" className="max-w-7xl mx-auto px-6 md:px-12 py-32 scroll-mt-20">
           {/* Profile Header (Moved above stepper) */}
