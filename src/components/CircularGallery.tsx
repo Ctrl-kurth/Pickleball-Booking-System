@@ -662,7 +662,7 @@ class App {
       const gl = this.renderer.gl;
       const ext = gl.getExtension('WEBGL_lose_context');
       if (ext) ext.loseContext();
-      
+
       if (this.renderer.gl.canvas.parentNode) {
         this.renderer.gl.canvas.parentNode.removeChild(this.renderer.gl.canvas as HTMLCanvasElement);
       }
@@ -727,22 +727,22 @@ export default function CircularGallery({
   return (
     <div className="relative w-full h-full">
       <div className="circular-gallery" ref={containerRef} />
-      
+
       {/* Mobile Navigation Controls */}
       <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-2 sm:px-4 md:hidden pointer-events-none z-10">
-        <button 
+        <button
           onClick={handlePrev}
           className="w-10 h-10 flex items-center justify-center bg-black/40 backdrop-blur-md rounded-full text-white/80 border border-white/10 pointer-events-auto active:scale-90 active:bg-green-400 active:text-black transition-all shadow-lg"
           aria-label="Previous Image"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
         </button>
-        <button 
+        <button
           onClick={handleNext}
           className="w-10 h-10 flex items-center justify-center bg-black/40 backdrop-blur-md rounded-full text-white/80 border border-white/10 pointer-events-auto active:scale-90 active:bg-green-400 active:text-black transition-all shadow-lg"
           aria-label="Next Image"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
         </button>
       </div>
     </div>

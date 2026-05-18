@@ -177,6 +177,7 @@ export default function App() {
   const [showMobileSlots, setShowMobileSlots] = useState(false);
   const [showMobileDuration, setShowMobileDuration] = useState(false);
   const [showMobileBookingModal, setShowMobileBookingModal] = useState(false);
+  const [showMobileLocationModal, setShowMobileLocationModal] = useState(false);
 
   const isInitialMount = useRef(true);
   const stepperRef = useRef<HTMLDivElement>(null);
@@ -227,6 +228,12 @@ export default function App() {
       setShowMobileBookingModal(true);
     }
   }, [currentStep, isMobile]);
+
+  useEffect(() => {
+    if (isMobile && currentStep === 1 && ['2-3 Pax Group', '4-5 Pax Group', '6-7 Pax Group', '8-10 Pax Group'].includes(sessionType) && !selectedLocation) {
+      setShowMobileLocationModal(true);
+    }
+  }, [currentStep, isMobile, sessionType, selectedLocation]);
 
   const fetchBookings = useCallback(() => {
     fetch('/api/bookings')
@@ -1051,25 +1058,40 @@ export default function App() {
                 
                 {/* Location Selection for Group Sessions */}
                 {['2-3 Pax Group', '4-5 Pax Group', '6-7 Pax Group', '8-10 Pax Group'].includes(sessionType) && (
-                  <div className="mt-6 p-6 bg-zinc-900/60 border border-zinc-800 rounded-2xl space-y-4">
-                    <h4 className="text-sm font-black text-white uppercase tracking-widest text-center">Select Location</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {['Taguig', 'QC / Parañaque'].map((loc) => (
-                        <button
-                          key={loc}
-                          type="button"
-                          onClick={() => setSelectedLocation(loc)}
-                          className={`py-3 px-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
-                            selectedLocation === loc
-                              ? 'bg-green-400 text-black shadow-[0_0_20px_rgba(74,222,128,0.3)]'
-                              : 'bg-zinc-800/50 border border-zinc-800 text-zinc-400 hover:border-green-400/40'
-                          }`}
-                        >
-                          {loc}
-                        </button>
-                      ))}
+                  !isMobile ? (
+                    <div className="mt-6 p-6 bg-zinc-900/60 border border-zinc-800 rounded-2xl space-y-4">
+                      <h4 className="text-sm font-black text-white uppercase tracking-widest text-center">Select Location</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {['Taguig', 'QC / Parañaque'].map((loc) => (
+                          <button
+                            key={loc}
+                            type="button"
+                            onClick={() => setSelectedLocation(loc)}
+                            className={`py-3 px-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
+                              selectedLocation === loc
+                                ? 'bg-green-400 text-black shadow-[0_0_20px_rgba(74,222,128,0.3)]'
+                                : 'bg-zinc-800/50 border border-zinc-800 text-zinc-400 hover:border-green-400/40'
+                            }`}
+                          >
+                            {loc}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="mt-6 bg-zinc-900/40 border border-zinc-800 rounded-3xl p-6 text-center space-y-4">
+                      {selectedLocation ? (
+                        <>
+                          <div className="text-green-400 font-black text-2xl tracking-tighter italic uppercase">{selectedLocation}</div>
+                        </>
+                      ) : (
+                        <div className="text-zinc-500 font-bold italic py-4">No location selected yet.</div>
+                      )}
+                      <button onClick={() => setShowMobileLocationModal(true)} className="bg-zinc-800 hover:bg-zinc-700 text-white px-6 py-4 rounded-xl font-black uppercase tracking-widest text-sm w-full transition-colors border border-zinc-700">
+                        {selectedLocation ? "Change Location" : "Select Location"}
+                      </button>
+                    </div>
+                  )
                 )}
               </div>
             </Step>
@@ -1209,6 +1231,56 @@ export default function App() {
               </div>
               <div className="flex-1 overflow-hidden relative flex flex-col">
                  {renderBookingUI()}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MOBILE LOCATION MODAL */}
+      <AnimatePresence>
+        {isMobile && showMobileLocationModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              onClick={() => setShowMobileLocationModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative w-[95%] max-w-lg bg-black border border-zinc-800 rounded-[2rem] shadow-2xl flex flex-col overflow-hidden"
+            >
+              <div className="flex justify-between items-center p-4 sm:p-6 border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50">
+                <h3 className="text-lg font-black text-white uppercase italic tracking-tighter">Select Location</h3>
+                <button onClick={() => setShowMobileLocationModal(false)} className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-400 hover:text-white transition-colors">
+                  <span className="font-black text-lg">✕</span>
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-1 gap-4">
+                  {['Taguig', 'QC / Parañaque'].map((loc) => (
+                    <button
+                      key={loc}
+                      type="button"
+                      onClick={() => {
+                        setSelectedLocation(loc);
+                        setShowMobileLocationModal(false);
+                      }}
+                      className={`py-6 px-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all ${
+                        selectedLocation === loc
+                          ? 'bg-green-400 text-black shadow-[0_0_20px_rgba(74,222,128,0.3)]'
+                          : 'bg-zinc-800/50 border border-zinc-800 text-zinc-400 hover:border-green-400/40'
+                      }`}
+                    >
+                      {loc}
+                    </button>
+                  ))}
+                </div>
               </div>
             </motion.div>
           </div>
