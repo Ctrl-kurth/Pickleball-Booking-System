@@ -173,6 +173,31 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleCancel = async (id: string) => {
+    const reason = prompt("Enter a reason for cancellation (this will be visible to the client):");
+    if (reason === null) return; // User cancelled the prompt
+
+    const booking = bookings.find(b => b._id === id);
+    if (!booking) return;
+
+    try {
+      const res = await fetch(`/api/bookings/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "cancelled",
+          systemMessage: reason || "Your booking has been cancelled by the admin."
+        })
+      });
+
+      if (res.ok) {
+        setBookings(prev => prev.map(b => b._id === id ? { ...b, status: "cancelled", systemMessage: reason || "Your booking has been cancelled by the admin." } : b));
+      }
+    } catch (error) {
+      console.error("Cancellation failed", error);
+    }
+  };
+
   const deleteBooking = async (id: string) => {
     if (!confirm("Are you sure you want to permanently delete this booking?")) return;
     try {
@@ -182,6 +207,18 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error("Delete failed", error);
+    }
+  };
+
+  const deleteAllBookings = async () => {
+    if (!confirm("WARNING: Are you absolutely sure you want to permanently delete ALL bookings? This action cannot be undone.")) return;
+    try {
+      const res = await fetch(`/api/bookings`, { method: "DELETE" });
+      if (res.ok) {
+        setBookings([]);
+      }
+    } catch (error) {
+      console.error("Delete all failed", error);
     }
   };
 
@@ -225,6 +262,15 @@ export default function AdminDashboard() {
               <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-green-400/10 blur-xl rounded-full" />
             </div>
           </div>
+          
+          <button
+            onClick={deleteAllBookings}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/10 border border-red-500/30 hover:border-red-500 hover:bg-red-500/20 rounded-xl transition-all group"
+            title="Delete All Bookings"
+          >
+            <Trash2 className="w-4 h-4 text-red-400 group-hover:text-red-300 transition-colors" />
+            <span className="hidden sm:inline font-bold text-xs text-red-400 group-hover:text-red-300 transition-colors uppercase tracking-widest">Delete All</span>
+          </button>
           
           <button
             onClick={handleLogout}
@@ -429,7 +475,7 @@ export default function AdminDashboard() {
                           )}
                           {booking.status !== "cancelled" && (
                             <button
-                              onClick={() => updateStatus(booking._id, "cancelled")}
+                              onClick={() => handleCancel(booking._id)}
                               className="p-2 rounded-xl bg-yellow-400/10 text-yellow-400 hover:bg-yellow-400 hover:text-black transition-colors tooltip-trigger"
                               title="Cancel"
                             >
@@ -495,7 +541,7 @@ export default function AdminDashboard() {
                     )}
                     {booking.status !== "cancelled" && (
                       <button
-                        onClick={() => updateStatus(booking._id, "cancelled")}
+                        onClick={() => handleCancel(booking._id)}
                         className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-zinc-800 text-yellow-400 border border-yellow-400/20 font-black uppercase tracking-widest text-[10px]"
                       >
                         <XCircle className="w-4 h-4" />

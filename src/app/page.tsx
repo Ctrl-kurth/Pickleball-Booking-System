@@ -73,12 +73,9 @@ function TrackStatus() {
     if (!statusEmail) return;
     setIsChecking(true);
     try {
-      const res = await fetch('/api/bookings');
+      const res = await fetch(`/api/bookings?email=${encodeURIComponent(statusEmail)}`);
       if (res.ok) {
-        const allBookings = await res.json();
-        const userBookings = allBookings.filter(
-          (b: Booking) => b.clientEmail.toLowerCase() === statusEmail.toLowerCase()
-        );
+        const userBookings = await res.json();
         setCheckingResult(userBookings);
       }
     } catch (error) {
@@ -130,7 +127,7 @@ function TrackStatus() {
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <div className="text-xs font-black text-zinc-600 uppercase tracking-widest">Status</div>
-                        <div className={`text-sm font-black uppercase ${b.status === 'confirmed' ? 'text-green-400' : 'text-yellow-400'}`}>
+                        <div className={`text-sm font-black uppercase ${b.status === 'confirmed' ? 'text-green-400' : b.status === 'cancelled' ? 'text-red-400' : 'text-yellow-400'}`}>
                           {b.status}
                         </div>
                       </div>
@@ -140,8 +137,8 @@ function TrackStatus() {
                     </div>
 
                     {b.systemMessage && (
-                      <div className="mt-4 p-4 bg-green-400/5 border border-green-400/10 rounded-xl">
-                        <p className="text-green-400/90 text-sm italic font-medium">
+                      <div className={`mt-4 p-4 rounded-xl border ${b.status === 'cancelled' ? 'bg-red-400/5 border-red-400/10' : 'bg-green-400/5 border-green-400/10'}`}>
+                        <p className={`text-sm italic font-medium ${b.status === 'cancelled' ? 'text-red-400/90' : 'text-green-400/90'}`}>
                           &quot;{b.systemMessage}&quot;
                         </p>
                       </div>

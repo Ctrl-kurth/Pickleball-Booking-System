@@ -68,10 +68,19 @@ export async function POST(req: Request) {
 /**
  * @api {get} /api/bookings Get all bookings (e.g. for the RAG context)
  */
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const email = searchParams.get("email");
+
     await dbConnect();
-    const bookings = await Booking.find({}).populate("coachId", "name");
+    
+    let query = {};
+    if (email) {
+      query = { clientEmail: { $regex: new RegExp(`^${email}$`, "i") } };
+    }
+
+    const bookings = await Booking.find(query).populate("coachId", "name");
     
     // Check authentication
     const cookieStore = await cookies();
@@ -87,7 +96,8 @@ export async function GET() {
         endTime: b.endTime,
         status: b.status,
         coachId: b.coachId,
-        location: b.location
+        location: b.location,
+        ...(email ? { systemMessage: b.systemMessage, clientEmail: b.clientEmail } : {})
       }));
       return NextResponse.json(safeBookings);
     }
@@ -95,5 +105,29 @@ export async function GET() {
     console.error("GET Bookings Error:", error);
     const err = error as { message?: string };
     return NextResponse.json({ error: "Failed to fetch bookings", details: err.message || "Unknown error" }, { status: 500 });
+  }
+}
+
+/**
+ * @api {delete} /api/bookings Delete all bookings
+ */
+export async function DELETE() {
+  try {
+    // Check authentication
+    const cookieStore = await cookies();
+    const adminAuth = cookieStore.get("adminAuth")?.value;
+    
+    if (adminAuth !== "true") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await dbConnect();
+    await Booking.deleteMany({});
+    
+    return NextResponse.json({ message: "All bookings deleted successfully" }, { status: 200 });
+  } catch (error: unknown) {
+    console.error("DELETE All Bookings Error:", error);
+    const err = error as { message?: string };
+    return NextResponse.json({ error: "Failed to delete all bookings", details: err.message || "Unknown error" }, { status: 500 });
   }
 }
